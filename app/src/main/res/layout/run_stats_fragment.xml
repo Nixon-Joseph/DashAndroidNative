@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Time Elapsed" />
+                android:text="@string/run_fragment_time_label" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/timeElapsedText"
@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Avg Pace"
+                android:text="@string/run_avg_pace_label"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -70,6 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:text="@{viewModel.runState.averagePaceString}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Distance"
+                android:text="@string/run_fragment_distance_label"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -109,6 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:text="@{viewModel.runState.totalDistanceString}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/distanceTypeText"
@@ -118,7 +120,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/distanceLabelText"
                 tools:text="0.0" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/distanceTypeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -126,7 +128,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/distanceValueText"
-                tools:text="mi" />
+                tools:text="miles" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -149,7 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Calories"
+                android:text="@string/run_calories_label"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -161,6 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:text="@{viewModel.runState.caloriesBurntString}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/textView2"
@@ -170,11 +173,11 @@
                 app:layout_constraintTop_toBottomOf="@+id/caloriesLabelText"
                 tools:text="275" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="kcal"
+                android:text="@string/run_cal_measurement_label"
                 app:layout_constraintBaseline_toBaselineOf="@+id/caloriesValueText"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -201,8 +204,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Elevation Change
-"
+                android:text="@string/run_elevation_change_label"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -214,6 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                android:text="@{viewModel.runState.elevationChangeString}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/elevationTypeText"
@@ -223,10 +226,11 @@
                 app:layout_constraintTop_toBottomOf="@+id/elevationLabelText"
                 tools:text="0" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/elevationTypeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@{viewModel.runState.elevationTypeString}"
                 app:layout_constraintBaseline_toBaselineOf="@+id/elevationValueText"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -256,6 +260,7 @@
                 android:layout_marginEnd="8dp"
                 android:text="@string/run_map_start_run_button"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                android:onClick="@{() -> viewModel.onStartClicked()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/statsCancelButton"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -270,6 +275,7 @@
                 android:layout_marginStart="8dp"
                 android:text="@string/run_map_cancel_button"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                android:onClick="@{() -> viewModel.onCancelClicked()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/statsStartRunButton"
@@ -282,6 +288,7 @@
                 android:text="@string/run_pause_button"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
                 android:visibility="gone"
+                android:onClick="@{() -> viewModel.onPauseClicked()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -1,34 +1,31 @@
 package com.dashfittness.app.ui.run
 
-import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.dashfittness.app.R
+import androidx.lifecycle.ViewModelProvider
 import com.dashfittness.app.RunViewModel
+import com.dashfittness.app.databinding.RunStatsFragmentBinding
+import com.dashfittness.app.util.RunClickInterface
 
 
-class RunStatsFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = RunStatsFragment()
-    }
-
+class RunStatsFragment(private val runClickInterface: RunClickInterface) : Fragment() {
+    private lateinit var binding: RunStatsFragmentBinding
     private lateinit var viewModel: RunStatsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.run_stats_fragment, container, false)
-    }
+        binding = RunStatsFragmentBinding.inflate(inflater)
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(RunStatsViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewModel = ViewModelProvider(this).get(RunStatsViewModel::class.java)
+        viewModel.clickTarget = runClickInterface
+        binding.viewModel = viewModel
+
+        return binding.root
     }
 
     fun update(state: RunViewModel.RunState?) {

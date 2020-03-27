@@ -11,4 +11,8 @@
     <string name="run_fragment_distance_label">Distance</string>
     <string name="run_pause_button">Pause</string>
     <string name="title_activity_maps">Map</string>
+    <string name="run_calories_label">Calories</string>
+    <string name="run_avg_pace_label">Avg Pace</string>
+    <string name="run_cal_measurement_label">kcal</string>
+    <string name="run_elevation_change_label">Elevation Change</string>
 </resources>

@@ -11,16 +11,18 @@ import androidx.lifecycle.ViewModelProvider
 import com.dashfittness.app.R
 import com.dashfittness.app.RunViewModel
 import com.dashfittness.app.databinding.RunMapFragmentBinding
+import com.dashfittness.app.util.RunClickInterface
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 
 
-class RunMapFragment() : Fragment() {
+class RunMapFragment(private val runClickInterface: RunClickInterface) : Fragment() {
     private lateinit var binding: RunMapFragmentBinding
     private lateinit var viewModel: RunMapViewModel
     private lateinit var googleMap: GoogleMap
+    private var firstLoc = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,33 +33,39 @@ class RunMapFragment() : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment;
 
         mapFragment.getMapAsync {
-            googleMap = it;
-            googleMap.uiSettings.isMyLocationButtonEnabled = false;
-            googleMap.isMyLocationEnabled = true;
+            googleMap = it
+            googleMap.uiSettings.isMyLocationButtonEnabled = false
+            googleMap.isMyLocationEnabled = true
             googleMap.uiSettings.isZoomControlsEnabled = false
             googleMap.uiSettings.setAllGesturesEnabled(true)
             activity?.let {
-                var locs = IntArray(2);
+                var locs = IntArray(2)
                 binding.infoLayout.getLocationOnScreen(locs)
                 val metrics = DisplayMetrics()
                 activity?.windowManager?.defaultDisplay?.getMetrics(metrics)
-                googleMap.setPadding(30, 0, 0, metrics.heightPixels - locs[1]);
+                googleMap.setPadding(30, 0, 0, metrics.heightPixels - locs[1])
             }
         }
+
+        viewModel = ViewModelProvider(this).get(RunMapViewModel::class.java)
+        viewModel.clickTarget = runClickInterface
+        binding.viewModel = viewModel;
 
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(RunMapViewModel::class.java)
+    fun updateLocation(location: Location?) {
+        location?.let {
+            if (firstLoc) {
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location!!.longitude), 16F))
+                firstLoc = false;
+            } else {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location!!.longitude), 16F))
+            }
+        }
     }
 
     fun update(state: RunViewModel.RunState) {
-        googleMap?.let {
-            state.location?.let {
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(state.location!!.latitude, state.location!!.longitude), 16F))
-            }
-        }
+        viewModel.setRunState(state);
     }
 }
