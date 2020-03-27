@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/home">
+
+    <fragment
+        android:id="@+id/home"
+        android:name="com.dashfittness.app.ui.main.MainFragment"
+        android:label="main_fragment"
+        tools:layout="@layout/main_fragment" >
+        <action
+            android:id="@+id/action_home_to_placeholderFragment2"
+            app:destination="@id/dash_run_setup" />
+    </fragment>
+    <fragment
+        android:id="@+id/dash_run_setup"
+        android:name="com.dashfittness.app.ui.main.RunSetupFragment"
+        android:label="@string/menu_item_run"
+        tools:layout="@layout/run_setup_fragment" />
+</navigation>
