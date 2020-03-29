@@ -27,6 +27,7 @@ class RunActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_run)
+        binding.lifecycleOwner = this;
         setSupportActionBar(toolbar);
 
         viewModel = ViewModelProvider(this).get(RunViewModel::class.java)
@@ -43,10 +44,6 @@ class RunActivity : AppCompatActivity() {
 
         viewModel.locationUpdate.observe(this, Observer { runMapFragment.updateLocation(it) })
 
-        viewModel.stateUpdate.observe(this, Observer {
-            runMapFragment.update(it);
-            runStatsFragment.update(it)
-        })
         fusedLocationClient = FusedLocationProviderClient(this);
     }
 

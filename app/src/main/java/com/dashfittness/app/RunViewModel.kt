@@ -20,12 +20,30 @@ import java.util.*
 import kotlin.concurrent.schedule
 
 class RunViewModel : ViewModel(), RunClickInterface {
-    private val _stateUpdate = MutableLiveData<RunState>();
-    val stateUpdate: LiveData<RunState>
-        get() = _stateUpdate
     private val _locationUpdate = MutableLiveData<Location>()
     val locationUpdate: LiveData<Location>
         get() = _locationUpdate
+    private val _timeElapsedString = MutableLiveData<String>()
+    val timeElapsedString: LiveData<String>
+        get() = _timeElapsedString
+    private val _totalDistanceString = MutableLiveData<String>()
+    val totalDistanceString: LiveData<String>
+        get() = _totalDistanceString
+    private val _averagePaceString = MutableLiveData<String>()
+    val averagePaceString: LiveData<String>
+        get() = _averagePaceString
+    private val _caloriesBurntString = MutableLiveData<String>()
+    val caloriesBurntString: LiveData<String>
+        get() = _caloriesBurntString
+    private val _elevationChangeString = MutableLiveData<String>()
+    val elevationChangeString: LiveData<String>
+        get() = _elevationChangeString
+    private val _elevationTypeString = MutableLiveData<String>()
+    val elevationTypeString: LiveData<String>
+        get() = _elevationTypeString
+    private val _distanceTypeString = MutableLiveData<String>()
+    val distanceTypeString: LiveData<String>
+        get() = _distanceTypeString
     private var _timeElapsed = 0L
     var running: Boolean = false
     var startTime: Long = 0L
@@ -34,20 +52,26 @@ class RunViewModel : ViewModel(), RunClickInterface {
     private var caloriesBurnt: Int = 0
     private var elevationChange: Double = 0.0
 
-    private var state = RunState();
-
     private var timer: TimerTask? = null;
+
+    init {
+        _timeElapsedString.value = "00:00"
+        _totalDistanceString.value = "0.0"
+        _averagePaceString.value = "00:00"
+        _caloriesBurntString.value = "0"
+        _elevationChangeString.value = "0"
+        _elevationTypeString.value = "ft"
+        _distanceTypeString.value = "miles"
+    }
 
     private fun startRunTimer() {
         stopRunTimer()
         timer = Timer("RunTimer", false).schedule(100, 100) {
-            val newTime: Long
             if (running) {
-                newTime = startTime - SystemClock.elapsedRealtime()
+                val newTime = SystemClock.elapsedRealtime() - startTime
                 _timeElapsed = newTime
-                state.timeElapsedString = calcTimeElapsedString(newTime)
+                _timeElapsedString.postValue(calcTimeElapsedString(newTime))
             }
-            _stateUpdate.postValue(state);
         }
     }
 
@@ -111,21 +135,12 @@ class RunViewModel : ViewModel(), RunClickInterface {
     }
 
     override fun onPauseClicked() {
-        TODO("Not yet implemented")
+        stopRunTimer()
     }
 
     override fun onStartClicked() {
-        TODO("Not yet implemented")
-    }
-
-    class RunState() {
-        var running: Boolean = false
-        var timeElapsedString: String = "00:00"
-        var totalDistanceString: String = "0.0"
-        var averagePaceString: String = "00:00"
-        var caloriesBurntString: String = "0"
-        var elevationChangeString: String = "0"
-        var elevationTypeString: String = "ft"
-        var distanceTypeString: String = "miles"
+        startTime = SystemClock.elapsedRealtime()
+        running = true
+        startRunTimer()
     }
 }

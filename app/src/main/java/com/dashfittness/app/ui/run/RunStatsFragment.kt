@@ -11,25 +11,19 @@ import com.dashfittness.app.databinding.RunStatsFragmentBinding
 import com.dashfittness.app.util.RunClickInterface
 
 
-class RunStatsFragment(private val runClickInterface: RunClickInterface) : Fragment() {
+class RunStatsFragment(runViewModel: RunViewModel) : Fragment() {
     private lateinit var binding: RunStatsFragmentBinding
-    private lateinit var viewModel: RunStatsViewModel
+    private var viewModel: RunViewModel = runViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = RunStatsFragmentBinding.inflate(inflater)
+        binding.lifecycleOwner = activity
 
-        viewModel = ViewModelProvider(this).get(RunStatsViewModel::class.java)
-        viewModel.clickTarget = runClickInterface
         binding.viewModel = viewModel
 
         return binding.root
     }
-
-    fun update(state: RunViewModel.RunState?) {
-        viewModel.setRunState(state);
-    }
-
 }

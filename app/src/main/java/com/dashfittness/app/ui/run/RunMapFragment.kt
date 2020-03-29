@@ -18,9 +18,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 
 
-class RunMapFragment(private val runClickInterface: RunClickInterface) : Fragment() {
+class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     private lateinit var binding: RunMapFragmentBinding
-    private lateinit var viewModel: RunMapViewModel
+    private var viewModel: RunViewModel = runViewModel
     private lateinit var googleMap: GoogleMap
     private var firstLoc = true
 
@@ -29,6 +29,7 @@ class RunMapFragment(private val runClickInterface: RunClickInterface) : Fragmen
         savedInstanceState: Bundle?
     ): View? {
         binding = RunMapFragmentBinding.inflate(inflater);
+        binding.lifecycleOwner = activity
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment;
 
@@ -47,8 +48,6 @@ class RunMapFragment(private val runClickInterface: RunClickInterface) : Fragmen
             }
         }
 
-        viewModel = ViewModelProvider(this).get(RunMapViewModel::class.java)
-        viewModel.clickTarget = runClickInterface
         binding.viewModel = viewModel;
 
         return binding.root
@@ -63,9 +62,5 @@ class RunMapFragment(private val runClickInterface: RunClickInterface) : Fragmen
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location!!.longitude), 16F))
             }
         }
-    }
-
-    fun update(state: RunViewModel.RunState) {
-        viewModel.setRunState(state);
     }
 }

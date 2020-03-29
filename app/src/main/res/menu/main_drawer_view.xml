@@ -7,5 +7,6 @@
         android:title="@string/menu_item_home" />
     <item
         android:id="@+id/dash_run_setup"
+        android:icon="@drawable/ic_directions_run_black_24dp"
         android:title="@string/menu_item_run" />
 </menu>

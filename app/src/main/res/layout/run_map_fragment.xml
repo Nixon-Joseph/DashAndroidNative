@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.dashfittness.app.ui.run.RunMapViewModel" />
+            type="com.dashfittness.app.RunViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:textSize="24sp"
-                android:text="@{viewModel.runState.timeElapsedString}"
+                android:text="@{viewModel.timeElapsedString}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/timeLabelText"
                 app:layout_constraintStart_toStartOf="@+id/timeLabelText"
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:textSize="24sp"
-                android:text="@{viewModel.runState.totalDistanceString}"
+                android:text="@{viewModel.totalDistanceString}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/distanceTypeText"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -110,7 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:text="@{viewModel.runState.distanceTypeString}"
+                android:text="@{viewModel.distanceTypeString}"
                 app:layout_constraintBaseline_toBaselineOf="@+id/distanceText"
                 app:layout_constraintEnd_toEndOf="@+id/distanceLabelText"
                 app:layout_constraintHorizontal_bias="0.5"
