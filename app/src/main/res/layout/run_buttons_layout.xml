@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.dashfittness.app.RunViewModel" />
+    </data>
+    
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/mapButtonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/infoLayout"
+        tools:showIn="@layout/run_map_fragment">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mapStartRunButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{() -> viewModel.onStartClicked()}"
+            android:text="@string/run_map_start_run_button"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+            android:visibility="@{viewModel.startRunVisibility}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/mapButtonGuideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mapCancelButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onCancelClicked()}"
+            android:text="@string/run_map_cancel_button"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+            android:visibility="@{viewModel.cancelRunVisibility}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/mapButtonGuideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/statsEndRunButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:onClick="@{() -> viewModel.onEndRunClicked()}"
+            android:text="@string/run_end_run"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+            android:visibility="@{viewModel.endRunVisibility}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/mapButtonGuideline"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mapPauseRunButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> viewModel.onPauseClicked()}"
+            android:text="@string/run_pause_button"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+            android:visibility="@{viewModel.pauseRunVisibility}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/mapButtonGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.50" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

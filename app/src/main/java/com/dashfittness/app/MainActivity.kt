@@ -3,6 +3,9 @@ package com.dashfittness.app
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -10,6 +13,9 @@ import androidx.navigation.ui.NavigationUI.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.dashfittness.app.databinding.MainActivityBinding
+import com.google.android.gms.location.LocationRequest
+
+const val PERMISSION_REQUEST: Int = 42;
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: MainActivityBinding
@@ -20,6 +26,20 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             setupNavigation();
+
+            if (
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, arrayOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    android.Manifest.permission.INTERNET
+                ), PERMISSION_REQUEST);
+            }
         }
     }
 

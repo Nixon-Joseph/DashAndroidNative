@@ -1,5 +1,11 @@
 package com.dashfittness.app
 
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.LocationManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -11,16 +17,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.dashfittness.app.databinding.ActivityRunBinding
 import com.dashfittness.app.ui.run.RunMapFragment
 import com.dashfittness.app.ui.run.RunStatsFragment
-import com.dashfittness.app.util.RunClickInterface
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.dashfittness.app.util.LocationService
+import com.dashfittness.app.util.startForegroundServiceCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.main_activity.*
-
-const val PERMISSION_REQUEST: Int = 42;
 
 class RunActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRunBinding;
     private lateinit var viewModel: RunViewModel;
-    private lateinit var fusedLocationClient: FusedLocationProviderClient;
     private lateinit var runMapFragment: RunMapFragment;
     private lateinit var runStatsFragment: RunStatsFragment;
 
@@ -44,17 +48,35 @@ class RunActivity : AppCompatActivity() {
 
         viewModel.locationUpdate.observe(this, Observer { runMapFragment.updateLocation(it) })
 
-        fusedLocationClient = FusedLocationProviderClient(this);
-    }
+        viewModel.endRun.observe(this, Observer{
+            if (it == true) {
+                val builder = MaterialAlertDialogBuilder(this)
+                builder.setTitle("Are you sure?")
+                builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
 
-    override fun onResume() {
-        super.onResume()
-        viewModel?.startLocationUpdates(this, fusedLocationClient);
-    }
+                builder.setPositiveButton("End Run") { _, _ ->
+                    viewModel.doEndRun()
+                    finish()
+                }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel?.stopLocationUpdates(fusedLocationClient);
+                builder.setNegativeButton(android.R.string.no) { _, _ -> }
+                builder.show()
+                viewModel.afterEndRunClicked()
+            }
+        })
+
+        viewModel.cancelClicked.observe(this, Observer {
+            if (it == true) {
+                viewModel.afterCancelClicked()
+                finish()
+            }
+        })
+
+        viewModel.initialize(
+            { r -> registerReceiver(r, IntentFilter("LOCATION_CHANGED"))},
+            { startForegroundServiceCompat(LocationService::class.java, "START_SERVICE") },
+            { startForegroundServiceCompat(LocationService::class.java, "STOP_SERVICE") }
+        )
     }
 
     class ViewPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
