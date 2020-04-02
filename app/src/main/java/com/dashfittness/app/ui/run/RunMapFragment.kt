@@ -16,6 +16,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 
 
 class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
@@ -53,13 +55,19 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
         return binding.root
     }
 
+    private lateinit var polyLine: Polyline
     fun updateLocation(location: Location?) {
         location?.let {
+            val latLng = LatLng(location!!.latitude, location!!.longitude)
             if (firstLoc) {
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location!!.longitude), 16F))
+                polyLine = googleMap.addPolyline(PolylineOptions().add(latLng))
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
                 firstLoc = false;
             } else {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location!!.latitude, location!!.longitude), 16F))
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
+                val newLine = googleMap.addPolyline(PolylineOptions().addAll(polyLine.points).add(latLng).width(10f))
+                polyLine.remove()
+                polyLine = newLine
             }
         }
     }

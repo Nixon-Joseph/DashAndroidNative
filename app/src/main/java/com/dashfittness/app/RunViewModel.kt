@@ -155,7 +155,7 @@ class RunViewModel : ViewModel() {
 
     private fun updateDisplayLabels() {
         _totalDistanceString.value = String.format("%.1f", totalDistance)
-        _averagePaceString.value = if (totalDistance > 0.0) calcTimeElapsedString(((_timeElapsed.toDouble() / 1000.0 * 60.0) / totalDistance).toLong()) else "∞"
+        _averagePaceString.value = if (totalDistance > 0.0) calcTimeElapsedString(((((_timeElapsed.toDouble() / 1000.0) / 60.0) / totalDistance) * 60000.0).toLong()) else "∞"
         _caloriesBurntString.value = "0"
         _elevationChangeString.value = if(minAltitude != null && maxAltitude != null) String.format("%.1f", (maxAltitude!! - minAltitude!!)) else "0"
         _elevationTypeString.value = if(isMetric) "m" else "ft"
