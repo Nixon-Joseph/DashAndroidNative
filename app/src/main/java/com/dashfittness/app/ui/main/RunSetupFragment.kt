@@ -16,10 +16,6 @@ class RunSetupFragment : Fragment() {
     private lateinit var binding: RunSetupFragmentBinding;
     private lateinit var viewModel: RunSetupViewModel;
 
-    companion object {
-        fun newInstance() = RunSetupFragment()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

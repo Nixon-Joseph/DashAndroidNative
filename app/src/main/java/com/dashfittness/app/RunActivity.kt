@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.dashfittness.app.database.RunDatabase
 import com.dashfittness.app.databinding.ActivityRunBinding
 import com.dashfittness.app.ui.run.RunMapFragment
 import com.dashfittness.app.ui.run.RunStatsFragment
@@ -33,8 +34,10 @@ class RunActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_run)
         binding.lifecycleOwner = this;
         setSupportActionBar(toolbar);
+        val dataSource = RunDatabase.getInstance(application).runDatabaseDao
 
-        viewModel = ViewModelProvider(this).get(RunViewModel::class.java)
+        val viewModelFactory = RunViewModelFactory(dataSource)
+        viewModel = ViewModelProvider(this, viewModelFactory).get(RunViewModel::class.java)
         binding.viewModel = viewModel
 
         runMapFragment = RunMapFragment(viewModel)
@@ -56,12 +59,17 @@ class RunActivity : AppCompatActivity() {
 
                 builder.setPositiveButton("End Run") { _, _ ->
                     viewModel.doEndRun()
-                    finish()
                 }
 
                 builder.setNegativeButton(android.R.string.no) { _, _ -> }
                 builder.show()
                 viewModel.afterEndRunClicked()
+            }
+        })
+
+        viewModel.onFinishActivity.observe(this, Observer {
+            if (it == true) {
+                finish()
             }
         })
 
@@ -74,9 +82,15 @@ class RunActivity : AppCompatActivity() {
 
         viewModel.initialize(
             { r -> registerReceiver(r, IntentFilter("LOCATION_CHANGED"))},
+            { r -> unregisterReceiver(r)},
             { startForegroundServiceCompat(LocationService::class.java, "START_SERVICE") },
             { startForegroundServiceCompat(LocationService::class.java, "STOP_SERVICE") }
         )
+    }
+
+    override fun onDestroy() {
+        viewModel.terminateLocationService()
+        super.onDestroy()
     }
 
     class ViewPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {

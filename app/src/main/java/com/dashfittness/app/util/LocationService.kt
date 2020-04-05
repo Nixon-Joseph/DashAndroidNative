@@ -25,20 +25,22 @@ class LocationService() : Service(), LocationListener {
     override fun onCreate() { }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        locMgr = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
         when (intent?.action) {
             "START_SERVICE" -> {
                 if (isStarted == false) {
+                    locMgr = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
                     registerForegroundService()
                     startLocationUpdates()
                     isStarted = true
                 }
             }
             "STOP_SERVICE" -> {
-                stopLocationUpdates()
-                stopForeground(true)
-                stopSelf()
-                isStarted = false
+                if (isStarted == true) {
+                    stopLocationUpdates()
+                    stopForeground(true)
+                    stopSelf()
+                    isStarted = false
+                }
             }
             "SHOW_PAUSE" -> {
                 NotificationManagerCompat.from(this).notify(LOCATION_NOTIFICATION_ID, buildNotification(true, buildNotificationChannelId()));

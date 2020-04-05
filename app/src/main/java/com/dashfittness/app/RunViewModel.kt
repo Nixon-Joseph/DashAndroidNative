@@ -1,34 +1,29 @@
 package com.dashfittness.app
 
-import android.annotation.SuppressLint
-import android.app.*
 import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.location.Criteria
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.*
+import android.os.SystemClock
 import android.view.View
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.dashfittness.app.database.RunData
+import com.dashfittness.app.database.RunDatabaseDao
+import com.dashfittness.app.database.RunLocationData
+import com.dashfittness.app.database.RunSegmentData
 import com.dashfittness.app.util.LocationBroadcastReceiver
 import com.dashfittness.app.util.LocationService
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
+import kotlinx.coroutines.*
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.math.max
 import kotlin.math.min
 
-class RunViewModel : ViewModel() {
+class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
+    private var viewModelJob = Job();
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob);
+
     private val _locationUpdate = MutableLiveData<Location>()
     val locationUpdate: LiveData<Location>
         get() = _locationUpdate
@@ -62,6 +57,9 @@ class RunViewModel : ViewModel() {
     private val _endRun = MutableLiveData<Boolean>()
     val endRun: LiveData<Boolean>
         get() = _endRun
+    private val _onFinishActivity = MutableLiveData<Boolean>()
+    val onFinishActivity: LiveData<Boolean>
+        get() = _onFinishActivity
 
     private var _timeElapsed = 0L
     var startTime: Long = 0L
@@ -108,6 +106,8 @@ class RunViewModel : ViewModel() {
 
     private lateinit var _startLocService: () -> Unit;
     private lateinit var _stopLocService: () -> Unit;
+    private lateinit var _unregisterReceiver: (r: BroadcastReceiver) -> Unit;
+    private var _serviceRunning = false
 
     init {
         _timeElapsedString.value = "00:00"
@@ -121,12 +121,14 @@ class RunViewModel : ViewModel() {
     }
 
     fun initialize(
-        afterInit: (r: BroadcastReceiver) -> Unit,
+        registerReceiver: (r: BroadcastReceiver) -> Unit,
+        unregisterReceiver: (r: BroadcastReceiver) -> Unit,
         startLocService: () -> Unit,
         stopLocService: () -> Unit
     ) {
-        _startLocService = startLocService;
-        _stopLocService = stopLocService;
+        _unregisterReceiver = unregisterReceiver
+        _startLocService = startLocService
+        _stopLocService = stopLocService
         _locService = LocationService()
         _receiver = LocationBroadcastReceiver()
         _receiver.locationReceived += { loc ->
@@ -135,7 +137,7 @@ class RunViewModel : ViewModel() {
                 _locationUpdate.value = loc
             }
         }
-        afterInit(_receiver)
+        registerReceiver(_receiver)
     }
 
     private val locations = arrayListOf<Location>()
@@ -149,15 +151,18 @@ class RunViewModel : ViewModel() {
             minAltitude = loc.altitude
             maxAltitude = loc.altitude
         }
+        if(minAltitude != null && maxAltitude != null) { elevationChange = maxAltitude!! - minAltitude!! }
+        averagePace = if (totalDistance > 0.0)  ((((_timeElapsed.toDouble() / 1000.0) / 60.0) / totalDistance) * 60000.0).toLong() else 0
+        // set calories burnt
         updateDisplayLabels()
         locations.add(loc)
     }
 
     private fun updateDisplayLabels() {
         _totalDistanceString.value = String.format("%.1f", totalDistance)
-        _averagePaceString.value = if (totalDistance > 0.0) calcTimeElapsedString(((((_timeElapsed.toDouble() / 1000.0) / 60.0) / totalDistance) * 60000.0).toLong()) else "∞"
-        _caloriesBurntString.value = "0"
-        _elevationChangeString.value = if(minAltitude != null && maxAltitude != null) String.format("%.1f", (maxAltitude!! - minAltitude!!)) else "0"
+        _averagePaceString.value = if (averagePace > 0) calcTimeElapsedString(averagePace) else "∞"
+        _caloriesBurntString.value = caloriesBurnt.toString()
+        _elevationChangeString.value = if(minAltitude != null && maxAltitude != null) String.format("%.1f", elevationChange) else "0"
         _elevationTypeString.value = if(isMetric) "m" else "ft"
         _distanceTypeString.value = if(isMetric) "km" else "miles"
     }
@@ -193,7 +198,55 @@ class RunViewModel : ViewModel() {
     }
 
     fun doEndRun() {
-        _stopLocService()
+        terminateLocationService()
+        _unregisterReceiver(_receiver);
+        val endTime = SystemClock.elapsedRealtime()
+        uiScope.async {
+            saveRun(endTime)
+        }
+    }
+
+    suspend fun saveRun(endTime: Long) {
+        coroutineScope {
+            withContext(Dispatchers.IO) {
+                val runId = database.insert(
+                    RunData(
+                        startTimeMilli = startTime,
+                        endTimeMilli = endTime,
+                        totalDistance = totalDistance,
+                        averagePace = averagePace
+                    )
+                )
+                val segmentId = database.insert(
+                    RunSegmentData(
+                        runId = runId,
+                        startTimeMilli = startTime,
+                        endTimeMilli = endTime
+                    )
+                )
+                val locDataList = ArrayList<RunLocationData>()
+                listOf(locations.forEachIndexed { index, loc ->
+                    locDataList.add(
+                        RunLocationData(
+                            segmentId = segmentId,
+                            latitude = loc.latitude,
+                            longitude = loc.longitude,
+                            altitude = loc.altitude,
+                            index = index
+                        )
+                    )
+                })
+                database.insert(locDataList)
+            }
+            _onFinishActivity.postValue(true)
+        }
+    }
+
+    fun terminateLocationService() {
+        if (_serviceRunning) {
+            _stopLocService()
+            _serviceRunning = false;
+        }
     }
 
     fun afterEndRunClicked() {
@@ -218,6 +271,7 @@ class RunViewModel : ViewModel() {
         runState.value = RunStates.Running
         startRunTimer()
         _startLocService()
+        _serviceRunning = true;
     }
 
     enum class RunStates {

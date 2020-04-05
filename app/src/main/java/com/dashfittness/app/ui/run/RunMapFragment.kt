@@ -55,19 +55,18 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
         return binding.root
     }
 
+    private val polyLocs = ArrayList<LatLng>()
     private lateinit var polyLine: Polyline
     fun updateLocation(location: Location?) {
         location?.let {
-            val latLng = LatLng(location!!.latitude, location!!.longitude)
+            polyLocs.add(LatLng(location!!.latitude, location!!.longitude))
             if (firstLoc) {
-                polyLine = googleMap.addPolyline(PolylineOptions().add(latLng))
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
+                polyLine = googleMap.addPolyline(PolylineOptions().addAll(polyLocs))
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(polyLocs.last(), 16F))
                 firstLoc = false;
             } else {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16F))
-                val newLine = googleMap.addPolyline(PolylineOptions().addAll(polyLine.points).add(latLng).width(10f))
-                polyLine.remove()
-                polyLine = newLine
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(polyLocs.last(), 16F))
+                polyLine.points = polyLocs
             }
         }
     }

@@ -49,6 +49,11 @@ dependencies {
     // use viewModelScope from lifecycle-viewmodel-ktx
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-alpha01"
 
+    // Room and Lifecycle dependencies
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    kapt "androidx.room:room-compiler:$room_version"
+
     // Navigation
     implementation "android.arch.navigation:navigation-fragment-ktx:$version_navigation"
     implementation "android.arch.navigation:navigation-ui-ktx:$version_navigation"
