@@ -17,7 +17,7 @@ fun MaterialTextView.setTimeElapsedString(run: RunData) {
 @BindingAdapter("totalDistanceString")
 fun MaterialTextView.setTotalDistanceString(run: RunData) {
     run.let {
-        text = "Distance: ${String.format("%1f", run.totalDistance)} Miles"
+        text = "Distance: ${String.format("%.1f", run.totalDistance)} Miles"
     }
 }
 

@@ -41,7 +41,7 @@ class HomeFragment : Fragment() {
 
         viewModel.runs.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.doSubmit(it)
+                adapter.submitList(it)
             }
         })
 

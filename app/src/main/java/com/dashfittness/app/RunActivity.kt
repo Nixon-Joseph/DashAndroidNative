@@ -8,6 +8,8 @@ import android.location.LocationManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -19,6 +21,7 @@ import com.dashfittness.app.databinding.ActivityRunBinding
 import com.dashfittness.app.ui.run.RunMapFragment
 import com.dashfittness.app.ui.run.RunStatsFragment
 import com.dashfittness.app.util.LocationService
+import com.dashfittness.app.util.animateView
 import com.dashfittness.app.util.startForegroundServiceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.main_activity.*
@@ -55,7 +58,10 @@ class RunActivity : AppCompatActivity() {
             val builder = MaterialAlertDialogBuilder(this)
             builder.setTitle("Are you sure?")
             builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
-            builder.setPositiveButton("End Run") { _, _ -> viewModel.doEndRun() }
+            builder.setPositiveButton("End Run") { _, _ ->
+                findViewById<FrameLayout>(R.id.progress_overlay).animateView(View.VISIBLE, 0.4f, 200)
+                viewModel.doEndRun()
+            }
             builder.setNegativeButton(android.R.string.no) { _, _ -> }
             builder.show()
         }

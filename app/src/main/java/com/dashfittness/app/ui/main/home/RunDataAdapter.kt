@@ -16,14 +16,6 @@ import kotlinx.coroutines.withContext
 class RunDataAdapter(private val runDataListener: RunDataListener) : ListAdapter<RunData, RecyclerView.ViewHolder>(RunDataDiffCallback()) {
     private val adapterScope = CoroutineScope(Dispatchers.Default);
 
-    fun doSubmit(list: List<RunData>?) {
-        adapterScope.launch {
-            withContext(Dispatchers.Main) {
-                submitList(list)
-            }
-        }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
     }

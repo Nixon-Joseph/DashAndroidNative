@@ -143,7 +143,7 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
             maxAltitude = loc.altitude
         }
         if(minAltitude != null && maxAltitude != null) { elevationChange = maxAltitude!! - minAltitude!! }
-        averagePace = if (totalDistance > 0.0)  ((((_timeElapsed.toDouble() / 1000.0) / 60.0) / totalDistance) * 60000.0).toLong() else 0
+        averagePace = calculatePace(_timeElapsed, totalDistance)
         //TODO('set calories burnt')
         updateDisplayLabels()
         locations.add(loc)
