@@ -3,7 +3,6 @@ package com.dashfittness.app
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Looper
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -12,17 +11,16 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.dashfittness.app.databinding.MainActivityBinding
-import com.google.android.gms.location.LocationRequest
+import com.dashfittness.app.databinding.ActivityMainBinding
 
 const val PERMISSION_REQUEST: Int = 42;
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: MainActivityBinding
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         if (savedInstanceState == null) {
             setupNavigation();

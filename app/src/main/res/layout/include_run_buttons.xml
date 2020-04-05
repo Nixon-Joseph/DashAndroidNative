@@ -23,7 +23,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/infoLayout"
-        tools:showIn="@layout/run_map_fragment">
+        tools:showIn="@layout/fragment_run_map">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mapStartRunButton"

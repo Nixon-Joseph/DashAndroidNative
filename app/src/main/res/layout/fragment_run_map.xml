@@ -121,7 +121,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include
-            layout="@layout/run_buttons_layout"
+            layout="@layout/include_run_buttons"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toEndOf="parent"

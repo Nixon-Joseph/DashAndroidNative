@@ -6,18 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.dashfittness.app.RunViewModel
-import com.dashfittness.app.databinding.RunStatsFragmentBinding
+import com.dashfittness.app.databinding.FragmentRunStatsBinding
 
 
 class RunStatsFragment(runViewModel: RunViewModel) : Fragment() {
-    private lateinit var binding: RunStatsFragmentBinding
+    private lateinit var binding: FragmentRunStatsBinding
     private var viewModel: RunViewModel = runViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = RunStatsFragmentBinding.inflate(inflater)
+        binding = FragmentRunStatsBinding.inflate(inflater)
         binding.lifecycleOwner = activity
 
         binding.viewModel = viewModel

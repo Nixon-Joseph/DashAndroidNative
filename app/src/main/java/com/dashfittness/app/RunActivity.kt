@@ -24,7 +24,7 @@ import com.dashfittness.app.util.LocationService
 import com.dashfittness.app.util.animateView
 import com.dashfittness.app.util.startForegroundServiceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.android.synthetic.main.main_activity.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 class RunActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRunBinding;

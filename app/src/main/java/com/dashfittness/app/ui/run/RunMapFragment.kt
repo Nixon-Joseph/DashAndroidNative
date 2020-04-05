@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.dashfittness.app.R
 import com.dashfittness.app.RunViewModel
-import com.dashfittness.app.databinding.RunMapFragmentBinding
+import com.dashfittness.app.databinding.FragmentRunMapBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 
 
 class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
-    private lateinit var binding: RunMapFragmentBinding
+    private lateinit var binding: FragmentRunMapBinding
     private var viewModel: RunViewModel = runViewModel
     private lateinit var googleMap: GoogleMap
     private var firstLoc = true
@@ -28,7 +28,7 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = RunMapFragmentBinding.inflate(inflater);
+        binding = FragmentRunMapBinding.inflate(inflater);
         binding.lifecycleOwner = activity
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment;

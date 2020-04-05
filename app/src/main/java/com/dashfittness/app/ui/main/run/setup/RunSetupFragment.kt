@@ -12,18 +12,18 @@ import androidx.lifecycle.ViewModelProvider
 import com.dashfittness.app.R
 
 import com.dashfittness.app.RunActivity
-import com.dashfittness.app.databinding.RunSetupFragmentBinding
+import com.dashfittness.app.databinding.FragmentRunSetupBinding
 import com.dashfittness.app.util.animateView
 
 class RunSetupFragment : Fragment() {
-    private lateinit var binding: RunSetupFragmentBinding;
+    private lateinit var binding: FragmentRunSetupBinding;
     private lateinit var viewModel: RunSetupViewModel;
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = RunSetupFragmentBinding.inflate(inflater);
+        binding = FragmentRunSetupBinding.inflate(inflater);
         return binding.root;
     }
 

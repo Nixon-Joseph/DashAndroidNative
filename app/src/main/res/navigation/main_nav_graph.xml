@@ -9,7 +9,7 @@
         android:id="@+id/home"
         android:name="com.dashfittness.app.ui.main.home.HomeFragment"
         android:label="main_fragment"
-        tools:layout="@layout/home_fragment" >
+        tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_home_to_placeholderFragment2"
             app:destination="@id/dash_run_setup" />
@@ -21,7 +21,7 @@
         android:id="@+id/dash_run_setup"
         android:name="com.dashfittness.app.ui.main.run.setup.RunSetupFragment"
         android:label="@string/menu_item_run"
-        tools:layout="@layout/run_setup_fragment" >
+        tools:layout="@layout/fragment_run_setup" >
         <action
             android:id="@+id/action_dash_run_setup_to_home"
             app:destination="@id/home" />
