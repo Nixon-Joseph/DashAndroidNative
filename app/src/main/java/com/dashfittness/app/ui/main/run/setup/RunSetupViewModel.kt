@@ -1,4 +1,4 @@
-package com.dashfittness.app.ui.main
+package com.dashfittness.app.ui.main.run.setup
 
 import android.content.Intent
 import androidx.lifecycle.LiveData

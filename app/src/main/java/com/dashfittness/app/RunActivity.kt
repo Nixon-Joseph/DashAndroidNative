@@ -51,34 +51,16 @@ class RunActivity : AppCompatActivity() {
 
         viewModel.locationUpdate.observe(this, Observer { runMapFragment.updateLocation(it) })
 
-        viewModel.endRun.observe(this, Observer{
-            if (it == true) {
-                val builder = MaterialAlertDialogBuilder(this)
-                builder.setTitle("Are you sure?")
-                builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
+        viewModel.endRun += {
+            val builder = MaterialAlertDialogBuilder(this)
+            builder.setTitle("Are you sure?")
+            builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
+            builder.setPositiveButton("End Run") { _, _ -> viewModel.doEndRun() }
+            builder.setNegativeButton(android.R.string.no) { _, _ -> }
+            builder.show()
+        }
 
-                builder.setPositiveButton("End Run") { _, _ ->
-                    viewModel.doEndRun()
-                }
-
-                builder.setNegativeButton(android.R.string.no) { _, _ -> }
-                builder.show()
-                viewModel.afterEndRunClicked()
-            }
-        })
-
-        viewModel.onFinishActivity.observe(this, Observer {
-            if (it == true) {
-                finish()
-            }
-        })
-
-        viewModel.cancelClicked.observe(this, Observer {
-            if (it == true) {
-                viewModel.afterCancelClicked()
-                finish()
-            }
-        })
+        viewModel.finishActivity += { finish() }
 
         viewModel.initialize(
             { r -> registerReceiver(r, IntentFilter("LOCATION_CHANGED"))},

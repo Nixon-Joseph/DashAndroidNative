@@ -6,13 +6,13 @@
     <data>
         <variable
             name="viewModel"
-            type="com.dashfittness.app.ui.main.RunSetupViewModel" />
+            type="com.dashfittness.app.ui.main.run.setup.RunSetupViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.main.RunSetupFragment">
+        tools:context=".ui.main.run.setup.RunSetupFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout5"

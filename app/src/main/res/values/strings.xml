@@ -16,4 +16,7 @@
     <string name="run_cal_measurement_label">kcal</string>
     <string name="run_elevation_change_label">Elevation Change</string>
     <string name="run_end_run">End Run</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

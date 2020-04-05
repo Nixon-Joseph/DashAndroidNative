@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="run"
+            type="com.dashfittness.app.database.RunData" />
+        <variable
+            name="clickListener"
+            type="com.dashfittness.app.ui.main.home.RunDataListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> clickListener.onClick(run)}">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/run_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_directions_run_black_24dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/run_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:textAlignment="viewStart"
+            app:layout_constraintBottom_toTopOf="@+id/run_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/run_image"
+            app:layout_constraintTop_toTopOf="parent"
+            app:dateString="@{run}"
+            tools:text="Date: 4/3/2020 13:10" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/run_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textAlignment="viewStart"
+            app:layout_constraintBottom_toTopOf="@+id/run_distance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/run_image"
+            app:layout_constraintTop_toBottomOf="@+id/run_date"
+            app:timeElapsedString="@{run}"
+            tools:text="Run Time: 25:42" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/run_distance"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:textAlignment="viewStart"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/run_image"
+            app:layout_constraintTop_toBottomOf="@+id/run_time"
+            app:totalDistanceString="@{run}"
+            tools:text="Distance: 3.1 Miles" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

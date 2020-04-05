@@ -7,11 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.dashfittness.app.R
 import com.dashfittness.app.RunViewModel
 import com.dashfittness.app.databinding.RunMapFragmentBinding
-import com.dashfittness.app.util.RunClickInterface
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment

@@ -7,16 +7,35 @@
 
     <fragment
         android:id="@+id/home"
-        android:name="com.dashfittness.app.ui.main.MainFragment"
+        android:name="com.dashfittness.app.ui.main.home.HomeFragment"
         android:label="main_fragment"
-        tools:layout="@layout/main_fragment" >
+        tools:layout="@layout/home_fragment" >
         <action
             android:id="@+id/action_home_to_placeholderFragment2"
             app:destination="@id/dash_run_setup" />
+        <action
+            android:id="@+id/action_home_to_runDetailFragment"
+            app:destination="@id/run_detail_fragment" />
     </fragment>
     <fragment
         android:id="@+id/dash_run_setup"
-        android:name="com.dashfittness.app.ui.main.RunSetupFragment"
+        android:name="com.dashfittness.app.ui.main.run.setup.RunSetupFragment"
         android:label="@string/menu_item_run"
-        tools:layout="@layout/run_setup_fragment" />
+        tools:layout="@layout/run_setup_fragment" >
+        <action
+            android:id="@+id/action_dash_run_setup_to_home"
+            app:destination="@id/home" />
+    </fragment>
+    <fragment
+        android:id="@+id/run_detail_fragment"
+        android:name="com.dashfittness.app.ui.main.run.detail.RunDetailFragment"
+        android:label="fragment_run_detail"
+        tools:layout="@layout/fragment_run_detail" >
+        <argument
+            android:name="runId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_run_detail_fragment_to_home"
+            app:destination="@id/home" />
+    </fragment>
 </navigation>

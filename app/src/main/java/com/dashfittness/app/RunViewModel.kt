@@ -12,8 +12,7 @@ import com.dashfittness.app.database.RunData
 import com.dashfittness.app.database.RunDatabaseDao
 import com.dashfittness.app.database.RunLocationData
 import com.dashfittness.app.database.RunSegmentData
-import com.dashfittness.app.util.LocationBroadcastReceiver
-import com.dashfittness.app.util.LocationService
+import com.dashfittness.app.util.*
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.concurrent.schedule
@@ -51,15 +50,10 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
 
     private val runState = MutableLiveData<RunStates>()
 
-    private val _cancelClicked = MutableLiveData<Boolean>()
-    val cancelClicked: LiveData<Boolean>
-        get() = _cancelClicked
-    private val _endRun = MutableLiveData<Boolean>()
-    val endRun: LiveData<Boolean>
-        get() = _endRun
-    private val _onFinishActivity = MutableLiveData<Boolean>()
-    val onFinishActivity: LiveData<Boolean>
-        get() = _onFinishActivity
+    private val onEndRun = EventHandler<Boolean>()
+    val endRun = Event(onEndRun)
+    private val onFinishActivity = EventHandler<Boolean>()
+    val finishActivity = Event(onFinishActivity)
 
     private var _timeElapsed = 0L
     var startTime: Long = 0L
@@ -80,21 +74,18 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
             else -> View.GONE
         }
     }
-
     val cancelRunVisibility = Transformations.map(runState) {
         when (it) {
             RunStates.Unstarted -> View.VISIBLE
             else -> View.GONE
         }
     }
-
     val endRunVisibility = Transformations.map(runState) {
         when (it) {
             RunStates.Paused, RunStates.Finished -> View.VISIBLE
             else -> View.GONE
         }
     }
-
     val pauseRunVisibility = Transformations.map(runState) {
         when (it) {
             RunStates.Running -> View.VISIBLE
@@ -153,14 +144,14 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
         }
         if(minAltitude != null && maxAltitude != null) { elevationChange = maxAltitude!! - minAltitude!! }
         averagePace = if (totalDistance > 0.0)  ((((_timeElapsed.toDouble() / 1000.0) / 60.0) / totalDistance) * 60000.0).toLong() else 0
-        // set calories burnt
+        //TODO('set calories burnt')
         updateDisplayLabels()
         locations.add(loc)
     }
 
     private fun updateDisplayLabels() {
         _totalDistanceString.value = String.format("%.1f", totalDistance)
-        _averagePaceString.value = if (averagePace > 0) calcTimeElapsedString(averagePace) else "∞"
+        _averagePaceString.value = if (averagePace > 0) convertLongToTimeString(averagePace) else "∞"
         _caloriesBurntString.value = caloriesBurnt.toString()
         _elevationChangeString.value = if(minAltitude != null && maxAltitude != null) String.format("%.1f", elevationChange) else "0"
         _elevationTypeString.value = if(isMetric) "m" else "ft"
@@ -171,9 +162,9 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
         stopRunTimer()
         timer = Timer("RunTimer", false).schedule(100, 100) {
             if (runState.value == RunStates.Running) {
-                val newTime = SystemClock.elapsedRealtime() - startTime
+                val newTime = System.currentTimeMillis() - startTime
                 _timeElapsed = newTime
-                _timeElapsedString.postValue(calcTimeElapsedString(newTime))
+                _timeElapsedString.postValue(convertLongToTimeString(newTime))
             }
         }
     }
@@ -182,25 +173,14 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
         timer?.cancel()
     }
 
-    private fun calcTimeElapsedString(elapsed: Long): String {
-        val totalSeconds = elapsed / 1000L
-        val totalMinutes = totalSeconds / 60L
-        val totalHours = totalMinutes / 60L
-        var str = "";
-        if (totalHours > 0L) {
-            str = totalHours.toString().padStart(2, '0')
-        }
-        return str + "${(totalMinutes % 60L).toString().padStart(2, '0')}:${(totalSeconds % 60L).toString().padStart(2, '0')}"
-    }
-
     fun onEndRunClicked() {
-        _endRun.value = true
+        onEndRun.invoke(true)
     }
 
     fun doEndRun() {
         terminateLocationService()
         _unregisterReceiver(_receiver);
-        val endTime = SystemClock.elapsedRealtime()
+        val endTime = System.currentTimeMillis()
         uiScope.async {
             saveRun(endTime)
         }
@@ -238,7 +218,7 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
                 })
                 database.insert(locDataList)
             }
-            _onFinishActivity.postValue(true)
+            onFinishActivity.invoke(true)
         }
     }
 
@@ -249,16 +229,8 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
         }
     }
 
-    fun afterEndRunClicked() {
-        _endRun.value = false
-    }
-
     fun onCancelClicked() {
-        _cancelClicked.value = true;
-    }
-
-    fun afterCancelClicked() {
-        _cancelClicked.value = false;
+        onFinishActivity.invoke(true)
     }
 
     fun onPauseClicked() {
@@ -267,7 +239,7 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
     }
 
     fun onStartClicked() {
-        startTime = SystemClock.elapsedRealtime()
+        startTime = System.currentTimeMillis()
         runState.value = RunStates.Running
         startRunTimer()
         _startLocService()

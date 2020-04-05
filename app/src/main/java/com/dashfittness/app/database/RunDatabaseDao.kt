@@ -16,10 +16,10 @@ interface RunDatabaseDao {
     @Insert()
     fun insert(locations: List<RunLocationData>)
 
-    @Query("SELECT * FROM dash_run_data ORDER BY start_time_milli")
+    @Query("SELECT * FROM dash_run_data ORDER BY start_time_milli DESC")
     fun getAllRuns() : LiveData<List<RunData>>
 
-    @Query("SELECT * FROM dash_run_segment_data WHERE run_id = :runId ORDER BY start_time_milli")
+    @Query("SELECT * FROM dash_run_segment_data WHERE run_id = :runId ORDER BY start_time_milli DESC")
     fun getRunSegments(runId: Long): LiveData<List<RunSegmentData>>
 
     @Query("SELECT * FROM dash_run_location_data WHERE segment_id = :segmentId ORDER BY `index`")

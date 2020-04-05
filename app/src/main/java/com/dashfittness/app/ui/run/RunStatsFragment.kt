@@ -5,10 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import com.dashfittness.app.RunViewModel
 import com.dashfittness.app.databinding.RunStatsFragmentBinding
-import com.dashfittness.app.util.RunClickInterface
 
 
 class RunStatsFragment(runViewModel: RunViewModel) : Fragment() {
