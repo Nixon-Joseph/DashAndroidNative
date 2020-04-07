@@ -20,6 +20,7 @@ import com.dashfittness.app.database.RunDatabase
 import com.dashfittness.app.databinding.ActivityRunBinding
 import com.dashfittness.app.ui.run.RunMapFragment
 import com.dashfittness.app.ui.run.RunStatsFragment
+import com.dashfittness.app.util.DashDBViewModelFactory
 import com.dashfittness.app.util.LocationService
 import com.dashfittness.app.util.animateView
 import com.dashfittness.app.util.startForegroundServiceCompat
@@ -39,7 +40,7 @@ class RunActivity : AppCompatActivity() {
         setSupportActionBar(toolbar);
         val dataSource = RunDatabase.getInstance(application).runDatabaseDao
 
-        val viewModelFactory = RunViewModelFactory(dataSource)
+        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource, application)
         viewModel = ViewModelProvider(this, viewModelFactory).get(RunViewModel::class.java)
         binding.viewModel = viewModel
 

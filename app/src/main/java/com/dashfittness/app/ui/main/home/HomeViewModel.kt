@@ -5,13 +5,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.dashfittness.app.database.RunDatabaseDao
+import com.dashfittness.app.util.DBViewModel
 import com.dashfittness.app.util.Event
 import com.dashfittness.app.util.EventHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
-class HomeViewModel(private val database: RunDatabaseDao, private val application: Application) : ViewModel() {
+class HomeViewModel(database: RunDatabaseDao, private val application: Application) : DBViewModel(database) {
     /** Coroutine variables */
     /**
      * viewModelJob allows us to cancel all coroutines started by this ViewModel.

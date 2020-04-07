@@ -19,7 +19,7 @@ import kotlin.concurrent.schedule
 import kotlin.math.max
 import kotlin.math.min
 
-class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
+class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private var viewModelJob = Job();
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob);
 
@@ -209,6 +209,7 @@ class RunViewModel(val database: RunDatabaseDao) : ViewModel() {
                     locDataList.add(
                         RunLocationData(
                             segmentId = segmentId,
+                            runId = runId,
                             latitude = loc.latitude,
                             longitude = loc.longitude,
                             altitude = loc.altitude,

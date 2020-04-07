@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey
 class RunLocationData(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0L,
+    @ColumnInfo(name = "run_id")
+    val runId: Long,
     @ColumnInfo(name = "segment_id")
     val segmentId: Long,
     @ColumnInfo(name = "latitude")

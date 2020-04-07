@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dashfittness.app.databinding.FragmentHomeBinding
 import com.dashfittness.app.R
 import com.dashfittness.app.database.RunDatabase
+import com.dashfittness.app.util.DashDBViewModelFactory
 
 class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
@@ -25,7 +26,7 @@ class HomeFragment : Fragment() {
         val application = requireNotNull(this.activity).application
 
         val dataSource = RunDatabase.getInstance(application).runDatabaseDao
-        val viewModelFactory = HomeViewModelFactory(dataSource, application)
+        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource, application)
 
         val viewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
 

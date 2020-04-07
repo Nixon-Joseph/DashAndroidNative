@@ -2,6 +2,12 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+    
+    <data>
+        <variable
+            name="viewModel"
+            type="com.dashfittness.app.ui.main.run.detail.RunDetailViewModel" />
+    </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -17,6 +23,7 @@
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
                 <androidx.fragment.app.FragmentContainerView
+                    app:layout_collapseMode="parallax"
                     android:id="@+id/runDetailMapView"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
