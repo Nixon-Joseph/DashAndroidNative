@@ -13,8 +13,11 @@ import com.dashfittness.app.database.RunDatabaseDao
 import com.dashfittness.app.database.RunLocationData
 import com.dashfittness.app.database.RunSegmentData
 import com.dashfittness.app.util.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
 import kotlin.math.max
 import kotlin.math.min
@@ -23,9 +26,12 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private var viewModelJob = Job();
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob);
 
-    private val _locationUpdate = MutableLiveData<Location>()
-    val locationUpdate: LiveData<Location>
-        get() = _locationUpdate
+    private val _latLngs = MutableLiveData<ArrayList<LatLng>>()
+    val latLngs: LiveData<ArrayList<LatLng>>
+        get() = _latLngs
+    private val _routeBounds = MutableLiveData<LatLngBounds>()
+    val routeBounds: LiveData<LatLngBounds>
+        get() = _routeBounds
     private val _timeElapsedString = MutableLiveData<String>()
     val timeElapsedString: LiveData<String>
         get() = _timeElapsedString
@@ -59,6 +65,10 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     var startTime: Long = 0L
     private var minAltitude: Double? = null
     private var maxAltitude: Double? = null
+    private var minLat: Double? = null
+    private var maxLat: Double? = null
+    private var minLng: Double? = null
+    private var maxLng: Double? = null
     private var totalDistance: Double = 0.0
     private var averagePace: Long = 0L
     private var caloriesBurnt: Int = 0
@@ -122,10 +132,12 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         _stopLocService = stopLocService
         _locService = LocationService()
         _receiver = LocationBroadcastReceiver()
+        _latLngs.value = ArrayList()
         _receiver.locationReceived += { loc ->
             if (loc != null) {
                 processNewLoc(loc)
-                _locationUpdate.value = loc
+                _latLngs.value?.add(LatLng(loc.latitude, loc.longitude))
+                _latLngs.notifyObservers()
             }
         }
         registerReceiver(_receiver)
@@ -138,11 +150,23 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
             totalDistance += locations.last().distanceTo(loc) / if(isMetric) 1000.0 else 1609.344
             minAltitude = minAltitude?.let { min(it, loc.altitude) }
             maxAltitude = maxAltitude?.let { max(it, loc.altitude) }
+            minLat = minLat?.let { min(it, loc.latitude) }
+            maxLat = maxLat?.let { max(it, loc.latitude) }
+            minLng = minLng?.let { min(it, loc.longitude) }
+            maxLng = maxLng?.let { max(it, loc.longitude) }
         } else {
             minAltitude = loc.altitude
             maxAltitude = loc.altitude
+            minLat = loc.latitude
+            maxLat = loc.latitude
+            minLng = loc.longitude
+            maxLng = loc.longitude
         }
-        if(minAltitude != null && maxAltitude != null) { elevationChange = maxAltitude!! - minAltitude!! }
+        elevationChange = maxAltitude!! - minAltitude!!
+        val builder = LatLngBounds.builder()
+        builder.include(LatLng(minLat!!, minLng!!))
+        builder.include(LatLng(maxLat!!, maxLng!!))
+        _routeBounds.value = builder.build()
         averagePace = calculatePace(_timeElapsed, totalDistance)
         //TODO('set calories burnt')
         updateDisplayLabels()

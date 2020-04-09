@@ -18,8 +18,11 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import kotlin.collections.ArrayList
+import kotlin.math.max
+import kotlin.math.min
 
 class RunDetailFragment : Fragment() {
     private lateinit var viewModel: RunDetailViewModel
@@ -74,7 +77,27 @@ class RunDetailFragment : Fragment() {
     private fun setupMapRoute() {
         if (googleMap != null && allLocs != null) {
             googleMap!!.addPolyline(PolylineOptions().addAll(allLocs))
-            googleMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(allLocs!!.first(), 16F))
+            var minLat: Double? = null
+            var minLng: Double? = null
+            var maxLat: Double? = null
+            var maxLng: Double? = null
+            allLocs!!.forEach {
+                if (minLat == null) {
+                    minLat = it.latitude
+                    maxLat = it.latitude
+                    minLng = it.longitude
+                    maxLng = it.longitude
+                } else {
+                    minLat = min(it.latitude, minLat!!)
+                    maxLat = max(it.latitude, maxLat!!)
+                    minLng = min(it.longitude, minLng!!)
+                    maxLng = max(it.longitude, maxLng!!)
+                }
+            }
+            val builder = LatLngBounds.builder()
+            builder.include(LatLng(minLat!!, minLng!!))
+            builder.include(LatLng(maxLat!!, maxLng!!))
+            googleMap!!.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
         }
     }
 }

@@ -99,7 +99,7 @@ class LocationService() : Service(), LocationListener {
 
             val locationProvider = locMgr.getBestProvider(criteria, true)
 
-            locMgr.requestLocationUpdates(locationProvider, 5000L, 0F, this)
+            locMgr.requestLocationUpdates(locationProvider!!, 1000L, 0F, this)
 
         } catch (ex: Exception) {}
     }

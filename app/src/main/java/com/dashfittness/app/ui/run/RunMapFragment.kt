@@ -1,6 +1,5 @@
 package com.dashfittness.app.ui.run
 
-import android.location.Location
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -13,7 +12,6 @@ import com.dashfittness.app.databinding.FragmentRunMapBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 
@@ -22,7 +20,7 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     private lateinit var binding: FragmentRunMapBinding
     private var viewModel: RunViewModel = runViewModel
     private lateinit var googleMap: GoogleMap
-    private var firstLoc = true
+    private var polyLine: Polyline? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,27 +43,21 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
                 val metrics = DisplayMetrics()
                 activity?.windowManager?.defaultDisplay?.getMetrics(metrics)
                 googleMap.setPadding(30, 0, 0, metrics.heightPixels - locs[1])
+                googleMap.setMaxZoomPreference(16.5f)
+                polyLine = googleMap.addPolyline(PolylineOptions())
             }
         }
+
+        viewModel.latLngs.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            it?.let { polyLine?.points = it }
+        })
+
+        viewModel.routeBounds.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(it, 100))
+        })
 
         binding.viewModel = viewModel;
 
         return binding.root
-    }
-
-    private val polyLocs = ArrayList<LatLng>()
-    private lateinit var polyLine: Polyline
-    fun updateLocation(location: Location?) {
-        location?.let {
-            polyLocs.add(LatLng(location!!.latitude, location!!.longitude))
-            if (firstLoc) {
-                polyLine = googleMap.addPolyline(PolylineOptions().addAll(polyLocs))
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(polyLocs.last(), 16F))
-                firstLoc = false;
-            } else {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(polyLocs.last(), 16F))
-                polyLine.points = polyLocs
-            }
-        }
     }
 }

@@ -53,8 +53,6 @@ class RunActivity : AppCompatActivity() {
         binding.viewPager.adapter = adapter;
         binding.tabs.setupWithViewPager(binding.viewPager);
 
-        viewModel.locationUpdate.observe(this, Observer { runMapFragment.updateLocation(it) })
-
         viewModel.endRun += {
             val builder = MaterialAlertDialogBuilder(this)
             builder.setTitle("Are you sure?")

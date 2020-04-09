@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 
 
 fun Context.startForegroundServiceCompat(target: Class<*>, action: String) {
@@ -37,4 +38,8 @@ fun View.animateView(toVisibility: Int, toAlpha: Float, duration: Long) {
                 visibility = toVisibility
             }
         })
+}
+
+fun <T> MutableLiveData<T>.notifyObservers() {
+    this.value = this.value
 }
