@@ -10,13 +10,14 @@ import androidx.lifecycle.ViewModelProvider
 
 import com.dashfittness.app.R
 import com.dashfittness.app.database.RunDatabase
-import com.dashfittness.app.database.RunLocationData
 import com.dashfittness.app.databinding.FragmentRunDetailBinding
 import com.dashfittness.app.util.DashDBViewModelFactory
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
@@ -68,8 +69,20 @@ class RunDetailFragment : Fragment() {
         })
 
         viewModel.segments.observe(viewLifecycleOwner, Observer {
-
+            val hrVals = listOf(80f, 80f, 90f, 100f, 120f, 120f, 120f, 120f, 110f, 110f, 90f, 80f)
+            val entryList = ArrayList<Entry>()
+            hrVals.forEachIndexed { i, d ->
+                entryList.add(Entry(i.toFloat(), d));
+            }
+            val dataSet = LineDataSet(entryList, "Heart Rate")
+            val lineData = LineData(dataSet)
+            binding.heartRateChart.data = lineData
+            binding.heartRateChart.invalidate()
+            binding.paceChart.data = lineData
+            binding.paceChart.invalidate()
         })
+
+        binding.collapsingAppBar.setExpanded(false, false)
 
         return binding.root
     }
@@ -98,6 +111,7 @@ class RunDetailFragment : Fragment() {
             builder.include(LatLng(minLat!!, minLng!!))
             builder.include(LatLng(maxLat!!, maxLng!!))
             googleMap!!.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
+            binding.collapsingAppBar.setExpanded(true, true)
         }
     }
 }

@@ -2,8 +2,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    
+
     <data>
+
         <variable
             name="viewModel"
             type="com.dashfittness.app.ui.main.run.detail.RunDetailViewModel" />
@@ -14,28 +15,298 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/collapsingAppBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@android:color/white">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                app:layout_scrollFlags="scroll|snap">
 
                 <androidx.fragment.app.FragmentContainerView
-                    app:layout_collapseMode="parallax"
                     android:id="@+id/runDetailMapView"
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="250dp" />
+                    android:layout_height="250dp"
+                    app:layout_collapseMode="parallax" />
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            android:layout_height="wrap_content"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailTitle"
+                    style="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Afternoon Run" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@id/runDetailDateIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_directions_run_black_24dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailTitle" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailDateText"
+                    style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailDateIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailTitle"
+                    tools:text="April 8, 17:20 - 17:56" />
+
+                <View
+                    android:id="@+id/divider1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailDateText" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/runDetailDistanceIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_directions_run_black_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailDistanceLabel"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailDistanceLabel"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailDistanceLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailDistanceLabel"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Distance"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailDistanceText"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailDistanceIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/divider1" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailDistanceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailDistanceLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailDistanceLabel"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailDistanceLabel"
+                    tools:text="3.05 miles" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/runDetailStepsIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_directions_run_black_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailStepsLabel"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailStepsLabel"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailStepsLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailStepsLabel"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Steps"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailStepsText"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailStepsIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailDistanceLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailStepsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailStepsLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailStepsLabel"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailStepsLabel"
+                    tools:text="5,137" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/runDetailCaloriesIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_directions_run_black_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailCaloriesLabel"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailCaloriesLabel"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailCaloriesLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailCaloriesLabel"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Calories"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailCaloriesText"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailCaloriesIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailStepsLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailCaloriesText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailCaloriesLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailCaloriesLabel"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailCaloriesLabel"
+                    tools:text="508" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/runDetailHRIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_directions_run_black_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailHRLabel"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailHRLabel"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailHRLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailHRLabel"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Heart Rate"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailHRText"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailHRIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailCaloriesLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailHRText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailHRLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailHRLabel"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailHRLabel"
+                    tools:text="161 bpm\n(average)" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/heartRateChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/runDetailHRLabel" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/runDetailPaceIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_directions_run_black_24dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailPaceLabel"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailPaceLabel"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintHorizontal_chainStyle="spread_inside"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailPaceLabel" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailPaceLabel"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Pace"
+                    app:layout_constraintEnd_toStartOf="@+id/runDetailHRText"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailPaceIcon"
+                    app:layout_constraintTop_toBottomOf="@+id/heartRateChart" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/runDetailPaceText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/runDetailPaceLabel"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/runDetailPaceLabel"
+                    app:layout_constraintTop_toTopOf="@+id/runDetailPaceLabel"
+                    tools:text="11:55/mi\n(average)" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/pace_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/runDetailPaceLabel" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
