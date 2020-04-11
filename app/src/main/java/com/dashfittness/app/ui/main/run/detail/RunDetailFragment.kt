@@ -30,6 +30,7 @@ class RunDetailFragment : Fragment() {
     private lateinit var binding: FragmentRunDetailBinding
     private var googleMap: GoogleMap? = null
     private var allLocs: ArrayList<LatLng>? = null
+    private lateinit var allElevations: ArrayList<Float>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,31 +61,87 @@ class RunDetailFragment : Fragment() {
 
         viewModel.runLocs.observe(viewLifecycleOwner, Observer {
             it?.let {
+                allElevations = ArrayList()
                 allLocs = ArrayList()
                 it.forEach { locData ->
                     allLocs!!.add(LatLng(locData.latitude, locData.longitude))
+                    allElevations.add(locData.altitude.toFloat())
                 }
+                allElevations = smoothElevations(allElevations)
                 setupMapRoute()
+                val entryList = ArrayList<Entry>()
+                allElevations.forEachIndexed { i, d -> entryList.add(Entry(i.toFloat(), d)); }
+                val dataSet = LineDataSet(entryList, "")
+                dataSet.setDrawCircles(false)
+                dataSet.setDrawValues(false)
+                dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                val lineData = LineData(dataSet)
+                binding.elevationChart.data = lineData
+                binding.elevationChart.isDoubleTapToZoomEnabled = false
+                binding.elevationChart.isScaleYEnabled = false
+                binding.elevationChart.isScaleXEnabled = false
+                binding.elevationChart.legend.isEnabled = false
+                binding.elevationChart.description.isEnabled = false
+                binding.elevationChart.setPinchZoom(false)
+                binding.elevationChart.invalidate()
             }
         })
 
         viewModel.segments.observe(viewLifecycleOwner, Observer {
-            val hrVals = listOf(80f, 80f, 90f, 100f, 120f, 120f, 120f, 120f, 110f, 110f, 90f, 80f)
-            val entryList = ArrayList<Entry>()
-            hrVals.forEachIndexed { i, d ->
-                entryList.add(Entry(i.toFloat(), d));
-            }
-            val dataSet = LineDataSet(entryList, "Heart Rate")
-            val lineData = LineData(dataSet)
-            binding.heartRateChart.data = lineData
-            binding.heartRateChart.invalidate()
-            binding.paceChart.data = lineData
-            binding.paceChart.invalidate()
+//            val hrVals = listOf(80f, 80f, 90f, 100f, 120f, 120f, 120f, 120f, 110f, 110f, 90f, 80f)
+//            val entryList = ArrayList<Entry>()
+//            hrVals.forEachIndexed { i, d ->
+//                entryList.add(Entry(i.toFloat(), d));
+//            }
+//            val dataSet = LineDataSet(entryList, "")
+//            val lineData = LineData(dataSet)
+//            binding.elevationChart.data = lineData
+//            binding.elevationChart.isDoubleTapToZoomEnabled = false
+//            binding.elevationChart.isScaleYEnabled = false
+//            binding.elevationChart.isScaleXEnabled = false
+//            binding.elevationChart.legend.isEnabled = false
+//            binding.elevationChart.description.isEnabled = false
+//            binding.elevationChart.setPinchZoom(false)
+//            binding.elevationChart.invalidate()
+//            binding.heartRateChart.data = lineData
+//            binding.heartRateChart.isDoubleTapToZoomEnabled = false
+//            binding.heartRateChart.isScaleYEnabled = false
+//            binding.heartRateChart.isScaleXEnabled = false
+//            binding.heartRateChart.legend.isEnabled = false
+//            binding.heartRateChart.description.isEnabled = false
+//            binding.heartRateChart.setPinchZoom(false)
+//            binding.heartRateChart.invalidate()
+//            binding.paceChart.data = lineData
+//            binding.paceChart.isDoubleTapToZoomEnabled = false
+//            binding.paceChart.isScaleYEnabled = false
+//            binding.paceChart.isScaleXEnabled = false
+//            binding.paceChart.legend.isEnabled = false
+//            binding.paceChart.description.isEnabled = false
+//            binding.paceChart.setPinchZoom(false)
+//            binding.paceChart.invalidate()
         })
 
         binding.collapsingAppBar.setExpanded(false, false)
 
         return binding.root
+    }
+
+    private fun smoothElevations(elevationList: ArrayList<Float>): ArrayList<Float> {
+        return if (elevationList.size >= 100) {
+            val newList = ArrayList<Float>()
+            for (i in 0 until elevationList.size step 20) {
+                var curTotal = 0f
+                var count = 0f
+                for (i2 in max(0, i - 10)..min(elevationList.size - 1, i + 10)) {
+                    curTotal += elevationList[i2]
+                    count++;
+                }
+                newList.add(curTotal / count)
+            }
+            newList;
+        } else {
+            elevationList
+        }
     }
 
     private fun setupMapRoute() {

@@ -38,7 +38,7 @@ class RunSetupFragment : Fragment() {
 
         viewModel.navigateToRunActivity.observe(viewLifecycleOwner, Observer { navigate ->
             if (navigate) {
-                activity?.findViewById<FrameLayout>(R.id.progress_overlay)?.animateView(View.VISIBLE, 0.4f, 200)
+//                activity?.findViewById<FrameLayout>(R.id.progress_overlay)?.animateView(View.VISIBLE, 0.4f, 200)
                 val intent = Intent(activity, RunActivity::class.java)
 
                 startActivity(intent);

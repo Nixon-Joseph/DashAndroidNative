@@ -58,7 +58,7 @@ class RunActivity : AppCompatActivity() {
             builder.setTitle("Are you sure?")
             builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
             builder.setPositiveButton("End Run") { _, _ ->
-                findViewById<FrameLayout>(R.id.progress_overlay).animateView(View.VISIBLE, 0.4f, 200)
+//                findViewById<FrameLayout>(R.id.progress_overlay).animateView(View.VISIBLE, 0.4f, 200)
                 viewModel.doEndRun()
             }
             builder.setNegativeButton(android.R.string.no) { _, _ -> }
