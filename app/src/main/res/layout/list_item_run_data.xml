@@ -6,10 +6,10 @@
     <data>
         <variable
             name="run"
-            type="com.dashfittness.app.database.RunData" />
+            type="com.dashfitness.app.database.RunData" />
         <variable
             name="clickListener"
-            type="com.dashfittness.app.ui.main.home.RunDataListener" />
+            type="com.dashfitness.app.ui.main.home.RunDataListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

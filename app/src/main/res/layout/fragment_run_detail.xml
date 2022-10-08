@@ -7,7 +7,7 @@
 
         <variable
             name="viewModel"
-            type="com.dashfittness.app.ui.main.run.detail.RunDetailViewModel" />
+            type="com.dashfitness.app.ui.main.run.detail.RunDetailViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

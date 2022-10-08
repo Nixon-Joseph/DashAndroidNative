@@ -21,14 +21,15 @@
             </androidx.appcompat.widget.Toolbar>
         </LinearLayout>
 
-        <fragment
-            android:layout_marginTop="?attr/actionBarSize"
-            android:id="@+id/nav_host_fragment"
+        <androidx.fragment.app.FragmentContainerView
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:id="@+id/nav_host_fragment"
             app:defaultNavHost="true"
-            app:navGraph="@navigation/main_nav_graph"/>
+            app:navGraph="@navigation/main_nav_graph"
+            />
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigationView"

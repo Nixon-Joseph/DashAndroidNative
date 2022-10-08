@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="com.dashfittness.app.RunViewModel" />
+            type="com.dashfitness.app.RunViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
