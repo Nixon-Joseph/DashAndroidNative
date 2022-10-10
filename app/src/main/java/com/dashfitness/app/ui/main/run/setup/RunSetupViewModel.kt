@@ -16,6 +16,8 @@ import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.Event
 import com.dashfitness.app.util.EventHandler
+import java.util.*
+import kotlin.collections.ArrayList
 
 class RunSetupViewModel : ViewModel() {
     private var clicked = false
@@ -62,6 +64,14 @@ class RunSetupViewModel : ViewModel() {
     fun removeSegmentAt(position: Int) {
         val list = segments.value?.let { ArrayList(it) } ?: ArrayList()
         list.removeAt(position)
+        segments.value = list
+    }
+
+    fun editSegment(segmentId: UUID, segmentType: RunSegmentType, segmentSpeed: RunSegmentSpeed, value: Float) {
+        val list = segments.value?.let { ArrayList(it) } ?: ArrayList()
+        val indexOfSegment = list.indexOfFirst { it.id == segmentId }
+        list.removeAt(indexOfSegment)
+        list.add(indexOfSegment, RunSegment(segmentType, segmentSpeed, value))
         segments.value = list
     }
 }

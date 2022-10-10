@@ -8,9 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.withStarted
 import com.dashfitness.app.databinding.ActivityRunBinding
 import com.dashfitness.app.database.RunDatabase
+import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.run.RunMapFragment
 import com.dashfitness.app.ui.run.RunStatsFragment
 import com.dashfitness.app.util.DashDBViewModelFactory
@@ -18,7 +18,6 @@ import com.dashfitness.app.util.LocationService
 import com.dashfitness.app.util.startForegroundServiceCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_run_map.*
 
 class RunActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRunBinding;
@@ -44,6 +43,7 @@ class RunActivity : AppCompatActivity() {
         adapter.addFragment(runMapFragment, "Map")
         adapter.addFragment(runStatsFragment, "Stats")
 
+        viewModel.segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
 
         binding.viewPager.adapter = adapter;
         binding.tabs.setupWithViewPager(binding.viewPager);

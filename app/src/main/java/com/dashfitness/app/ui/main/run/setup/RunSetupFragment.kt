@@ -1,10 +1,8 @@
 package com.dashfitness.app.ui.main.run.setup
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.Color.red
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +12,6 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -25,18 +22,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
+import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.animateView
 import com.google.android.material.slider.Slider
 import com.kevincodes.recyclerview.ItemDecorator
 import kotlinx.android.synthetic.main.fragment_run_setup.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class RunSetupFragment : Fragment() {
     private lateinit var binding: FragmentRunSetupBinding
     private lateinit var viewModel: RunSetupViewModel
-    private var isDistance = false
+    private var newSegmentType: RunSegmentType = RunSegmentType.TIME
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var itemTouchHelper: ItemTouchHelper
 
@@ -48,20 +48,26 @@ class RunSetupFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentRunSetupBinding.inflate(inflater);
         viewModel = ViewModelProvider(this)[RunSetupViewModel::class.java]
         binding.viewModel = viewModel
         viewModel.addSegmentClicked += { clicked -> onAddSegmentButtonClicked(clicked) }
-        viewModel.addRunSegmentClicked += { segmentType -> showAddSegmentDialog(segmentType, inflater) }
-        setupSegmentList()
+        viewModel.addRunSegmentClicked += { segmentSpeed -> showSegmentDialog(
+            segmentSpeed,
+            inflater,
+            null,
+            null,
+            null
+        ) }
+        setupSegmentList(inflater)
 
         return binding.root;
     }
 
-    private fun setupSegmentList() {
+    private fun setupSegmentList(inflater: LayoutInflater) {
         val adapter = SegmentSetupAdapter(SegmentSetupListener { segment ->
-            //TODO: open popup to allow editing/removing?
+            showSegmentDialog(segment.speed, inflater, segment.type, segment.value, segment.id)
         })
         val simpleCallback = object :
             ItemTouchHelper.SimpleCallback(
@@ -166,9 +172,8 @@ class RunSetupFragment : Fragment() {
 
         viewModel.navigateToRunActivity.observe(viewLifecycleOwner, Observer { navigate ->
             if (navigate) {
-//                activity?.findViewById<FrameLayout>(R.id.progress_overlay)?.animateView(View.VISIBLE, 0.4f, 200)
                 val intent = Intent(activity, RunActivity::class.java)
-
+                intent.putExtra("segments", viewModel.segments.value?.let { ArrayList(it) } ?: ArrayList<RunSegment>() as java.io.Serializable)
                 startActivity(intent);
                 viewModel.onRunNavigated();
             }
@@ -177,7 +182,13 @@ class RunSetupFragment : Fragment() {
         binding.viewModel = viewModel;
     }
 
-    private fun showAddSegmentDialog(segmentSpeed: RunSegmentSpeed, inflater: LayoutInflater) {
+    private fun showSegmentDialog(
+        segmentSpeed: RunSegmentSpeed,
+        inflater: LayoutInflater,
+        segmentType: RunSegmentType?,
+        segmentValue: Float?,
+        id: UUID?
+    ) {
         val builder = requireActivity().let { AlertDialog.Builder(it) }
         var title = "Add "
         if (segmentSpeed == RunSegmentSpeed.Run) {
@@ -186,51 +197,66 @@ class RunSetupFragment : Fragment() {
             title += "Walk"
         }
         val view = inflater.inflate(R.layout.dialog_add_segment, null)
-        val dialog = builder
+        builder
             .setTitle(title)
             .setView(view)
             .setPositiveButton("Confirm") { _dialog, _ ->
-                val toast = Toast(requireContext())
-                val text = if (isDistance) "Distance " else "Time "
-                viewModel.addSegment(if(isDistance) RunSegmentType.DISTANCE else RunSegmentType.TIME, segmentSpeed, view.findViewById<Slider>(
+                viewModel.addSegment(newSegmentType, segmentSpeed, view.findViewById<Slider>(
                     R.id.segmentAmountSlider).value)
                 _dialog.dismiss()
             }
             .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
-            .create()
         val distanceButton = view.findViewById<Button>(R.id.segmentDistanceButton)
         val timeButton = view.findViewById<Button>(R.id.segmentTimeButton)
+        newSegmentType = RunSegmentType.TIME
+        segmentType?.let {
+            newSegmentType = segmentType
+            handleSegmentTypeChange(it, timeButton, distanceButton, view)
+        }
+        segmentValue?.let {
+            view.findViewById<Slider>(R.id.segmentAmountSlider).value = it
+        }
+        id?.let {
+            builder.setPositiveButton("Confirm") { _dialog, _ ->
+                viewModel.editSegment(it, newSegmentType, segmentSpeed, view.findViewById<Slider>(R.id.segmentAmountSlider).value)
+                _dialog.dismiss()
+            }
+        }
+        val dialog = builder.create()
         timeButton.setOnClickListener {
-            handleSegmentTypeChange(false, timeButton, distanceButton, view)
-            isDistance = false
+            handleSegmentTypeChange(RunSegmentType.TIME, timeButton, distanceButton, view)
+            newSegmentType = RunSegmentType.TIME
         }
         distanceButton.setOnClickListener {
-            handleSegmentTypeChange(true, timeButton, distanceButton, view)
-            isDistance = true
+            handleSegmentTypeChange(RunSegmentType.DISTANCE, timeButton, distanceButton, view)
+            newSegmentType = RunSegmentType.DISTANCE
         }
         dialog.show()
     }
 
-    private fun handleSegmentTypeChange(isDistance: Boolean, timeButton: Button, distanceButton: Button, view: View) {
+    private fun handleSegmentTypeChange(segmentType: RunSegmentType, timeButton: Button, distanceButton: Button, view: View) {
         val slider = view.findViewById<Slider>(R.id.segmentAmountSlider)
-        if (isDistance) {
-            slider.value = 1f
-            slider.valueFrom = 0.25f
-            slider.valueTo = 5f
-            slider.stepSize = 0.25f
-            distanceButton.setBackgroundColor(getColor(resources, R.color.colorPrimaryDark, null))
-            distanceButton.setTextColor(getColor(resources, R.color.white, null))
-            timeButton.setBackgroundColor(getColor(resources, R.color.white, null))
-            timeButton.setTextColor(getColor(resources, R.color.colorPrimaryDark, null))
-        } else {
-            slider.value = 5f
-            slider.valueFrom = 1f
-            slider.valueTo = 60f
-            slider.stepSize = 1f
-            timeButton.setBackgroundColor(getColor(resources, R.color.colorPrimaryDark, null))
-            timeButton.setTextColor(getColor(resources, R.color.white, null))
-            distanceButton.setBackgroundColor(getColor(resources, R.color.white, null))
-            distanceButton.setTextColor(getColor(resources, R.color.colorPrimaryDark, null))
+        when (segmentType) {
+            RunSegmentType.TIME -> {
+                slider.value = 5f
+                slider.valueFrom = 1f
+                slider.valueTo = 60f
+                slider.stepSize = 1f
+                timeButton.setBackgroundColor(getColor(resources, R.color.colorPrimaryDark, null))
+                timeButton.setTextColor(getColor(resources, R.color.white, null))
+                distanceButton.setBackgroundColor(getColor(resources, R.color.white, null))
+                distanceButton.setTextColor(getColor(resources, R.color.colorPrimaryDark, null))
+            }
+            else -> {
+                slider.value = 1f
+                slider.valueFrom = 0.25f
+                slider.valueTo = 5f
+                slider.stepSize = 0.25f
+                distanceButton.setBackgroundColor(getColor(resources, R.color.colorPrimaryDark, null))
+                distanceButton.setTextColor(getColor(resources, R.color.white, null))
+                timeButton.setBackgroundColor(getColor(resources, R.color.white, null))
+                timeButton.setTextColor(getColor(resources, R.color.colorPrimaryDark, null))
+            }
         }
     }
 }

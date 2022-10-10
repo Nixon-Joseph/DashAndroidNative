@@ -10,6 +10,7 @@ import com.dashfitness.app.database.RunData
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.database.RunSegmentData
+import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.util.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -21,8 +22,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
-    private var viewModelJob = Job();
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob);
+    private var viewModelJob = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+    var segments: ArrayList<RunSegment> = ArrayList()
 
     private val _latLngs = MutableLiveData<ArrayList<LatLng>>()
     val latLngs: LiveData<ArrayList<LatLng>>
