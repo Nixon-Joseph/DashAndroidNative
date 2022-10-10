@@ -73,5 +73,11 @@
             app:totalDistanceString="@{run}"
             tools:text="Distance: 3.1 Miles" />
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/border"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout">
 
     <data>
         <variable
@@ -93,10 +94,40 @@
             android:layout_marginBottom="24dp"
             android:background="#8BC34A"
             android:clickable="true"
-            android:onClick="@{() -> viewModel.onAddSegmentClick()}"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.onAddSegmentClicked()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_add_black_24dp" />
+            app:srcCompat="@drawable/ic_add_black_24dp"
+            android:contentDescription="Plus Icon" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/runButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="@{() -> viewModel.onAddRunSegmentClicked()}"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/addSegmentButton"
+            app:layout_constraintEnd_toEndOf="@+id/addSegmentButton"
+            app:srcCompat="@drawable/ic_directions_run_black_24dp"
+            android:contentDescription="Run Icon" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/walkButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="@{() -> viewModel.onAddWalkSegmentClicked()}"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/runButton"
+            app:layout_constraintEnd_toEndOf="@+id/addSegmentButton"
+            app:srcCompat="@drawable/ic_baseline_directions_walk_24"
+            android:contentDescription="Walk Icon" />
 
         <FrameLayout
             android:id="@+id/frameLayout2"
@@ -104,6 +135,7 @@
             android:layout_height="wrap_content"
             android:background="#BDBDBD"
             android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -117,6 +149,24 @@
                 android:text="Segments" />
         </FrameLayout>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/segmentConstraint"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frameLayout2"
+            tools:context=".ui.main.run.setup.RunSetupFragment">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/segment_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/list_item_run_setup_segment" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <TextView
             android:id="@+id/textView3"
             android:layout_width="0dp"
@@ -126,11 +176,12 @@
             android:layout_marginEnd="8dp"
             android:text='No segments selected. You can add segments with the + button below. Or click "START RUN" to proceed without segments'
             android:textAlignment="viewStart"
+            app:visibleWhenListEmpty="@{viewModel.segments}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
 
-<!--        <include-->
+        <!--        <include-->
 <!--            layout="@layout/include_progress_overlay"-->
 <!--            app:layout_constraintBottom_toBottomOf="parent"-->
 <!--            app:layout_constraintEnd_toEndOf="parent"-->

@@ -10,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
-class HomeViewModel(database: RunDatabaseDao, private val application: Application) : DBViewModel(database) {
+class HomeViewModel(database: RunDatabaseDao, application: Application) : DBViewModel(database) {
     /** Coroutine variables */
     /**
      * viewModelJob allows us to cancel all coroutines started by this ViewModel.
