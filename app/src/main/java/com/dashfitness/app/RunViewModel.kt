@@ -15,6 +15,7 @@ import com.dashfitness.app.util.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlinx.coroutines.*
+import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
@@ -62,7 +63,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     val finishActivity = Event(onFinishActivity)
 
     private var _timeElapsed = 0L
-    var startTime: Long = 0L
+    private var startTime: Long = 0L
     private var minAltitude: Double? = null
     private var maxAltitude: Double? = null
     private var minLat: Double? = null
@@ -73,10 +74,10 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private var averagePace: Long = 0L
     private var caloriesBurnt: Int = 0
     private var elevationChange: Double = 0.0
-    private var isMetric: Boolean = false;
+    private var isMetric: Boolean = false
 
-    private lateinit var _receiver: LocationBroadcastReceiver;
-    private lateinit var _locService: LocationService
+    private lateinit var _receiver: LocationBroadcastReceiver
+    private lateinit var _locService: WeakReference<LocationService>
 
     val startRunVisibility = Transformations.map(runState) {
         when (it) {
@@ -103,11 +104,11 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         }
     }
 
-    private var timer: TimerTask? = null;
+    private var timer: TimerTask? = null
 
-    private lateinit var _startLocService: () -> Unit;
-    private lateinit var _stopLocService: () -> Unit;
-    private lateinit var _unregisterReceiver: (r: BroadcastReceiver) -> Unit;
+    private lateinit var _startLocService: () -> Unit
+    private lateinit var _stopLocService: () -> Unit
+    private lateinit var _unregisterReceiver: (r: BroadcastReceiver) -> Unit
     private var _serviceRunning = false
 
     init {
@@ -130,7 +131,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         _unregisterReceiver = unregisterReceiver
         _startLocService = startLocService
         _stopLocService = stopLocService
-        _locService = LocationService()
+        _locService = WeakReference(LocationService())
         _receiver = LocationBroadcastReceiver()
         _latLngs.value = ArrayList()
         _receiver.locationReceived += { loc ->
@@ -203,14 +204,14 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
 
     fun doEndRun() {
         terminateLocationService()
-        _unregisterReceiver(_receiver);
+        _unregisterReceiver(_receiver)
         val endTime = System.currentTimeMillis()
         uiScope.async {
             saveRun(endTime)
         }
     }
 
-    suspend fun saveRun(endTime: Long) {
+    private suspend fun saveRun(endTime: Long) {
         coroutineScope {
             withContext(Dispatchers.IO) {
                 val runId = database.insert(
@@ -250,7 +251,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     fun terminateLocationService() {
         if (_serviceRunning) {
             _stopLocService()
-            _serviceRunning = false;
+            _serviceRunning = false
         }
     }
 
@@ -268,7 +269,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         runState.value = RunStates.Running
         startRunTimer()
         _startLocService()
-        _serviceRunning = true;
+        _serviceRunning = true
     }
 
     enum class RunStates {

@@ -1,13 +1,14 @@
 package com.dashfitness.app.ui.main.run.detail
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
-
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunDatabase
 import com.dashfitness.app.databinding.FragmentRunDetailBinding
@@ -35,7 +36,7 @@ class RunDetailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentRunDetailBinding.inflate(inflater, container, false)
 
@@ -43,23 +44,32 @@ class RunDetailFragment : Fragment() {
         val arguments = RunDetailFragmentArgs.fromBundle(requireArguments())
 
         val dataSource = RunDatabase.getInstance(application).runDatabaseDao
-        val viewModelFactory = DashDBViewModelFactory(dataSource, application, arguments.runId)
-        viewModel = ViewModelProvider(this, viewModelFactory).get(RunDetailViewModel::class.java)
+        val viewModelFactory = DashDBViewModelFactory(dataSource, arguments.runId)
+        viewModel = ViewModelProvider(this, viewModelFactory)[RunDetailViewModel::class.java]
 
-        binding.viewModel = viewModel;
+        binding.viewModel = viewModel
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.runDetailMapView) as SupportMapFragment;
+        val mapFragment = childFragmentManager.findFragmentById(R.id.runDetailMapView) as SupportMapFragment
 
         mapFragment.getMapAsync {
             googleMap = it
             it.uiSettings.isMyLocationButtonEnabled = false
-            it.isMyLocationEnabled = false
+            if (ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                it.isMyLocationEnabled = true
+            }
             it.uiSettings.isZoomControlsEnabled = false
             it.uiSettings.setAllGesturesEnabled(false)
             setupMapRoute()
         }
 
-        viewModel.runLocs.observe(viewLifecycleOwner, Observer {
+        viewModel.runLocs.observe(viewLifecycleOwner) {
             it?.let {
                 allElevations = ArrayList()
                 allLocs = ArrayList()
@@ -85,9 +95,9 @@ class RunDetailFragment : Fragment() {
                 binding.elevationChart.setPinchZoom(false)
                 binding.elevationChart.invalidate()
             }
-        })
+        }
 
-        viewModel.segments.observe(viewLifecycleOwner, Observer {
+        viewModel.segments.observe(viewLifecycleOwner) {
 //            val hrVals = listOf(80f, 80f, 90f, 100f, 120f, 120f, 120f, 120f, 110f, 110f, 90f, 80f)
 //            val entryList = ArrayList<Entry>()
 //            hrVals.forEachIndexed { i, d ->
@@ -119,7 +129,7 @@ class RunDetailFragment : Fragment() {
 //            binding.paceChart.description.isEnabled = false
 //            binding.paceChart.setPinchZoom(false)
 //            binding.paceChart.invalidate()
-        })
+        }
 
         binding.collapsingAppBar.setExpanded(false, false)
 
@@ -134,11 +144,11 @@ class RunDetailFragment : Fragment() {
                 var count = 0f
                 for (i2 in max(0, i - 10)..min(elevationList.size - 1, i + 10)) {
                     curTotal += elevationList[i2]
-                    count++;
+                    count++
                 }
                 newList.add(curTotal / count)
             }
-            newList;
+            newList
         } else {
             elevationList
         }

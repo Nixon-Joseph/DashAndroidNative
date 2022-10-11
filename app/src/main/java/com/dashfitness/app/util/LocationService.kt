@@ -11,7 +11,6 @@ import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dashfitness.app.R
@@ -19,7 +18,7 @@ import com.dashfitness.app.RunActivity
 
 const val LOCATION_NOTIFICATION_ID = 17
 
-class LocationService() : Service(), LocationListener {
+class LocationService : Service(), LocationListener {
     private lateinit var locMgr: LocationManager
     private var binder: IBinder? = null
     private var isStarted: Boolean = false
@@ -29,7 +28,7 @@ class LocationService() : Service(), LocationListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "START_SERVICE" -> {
-                if (isStarted == false) {
+                if (!isStarted) {
                     locMgr = applicationContext.getSystemService(LOCATION_SERVICE) as LocationManager
                     registerForegroundService()
                     startLocationUpdates()
@@ -37,43 +36,51 @@ class LocationService() : Service(), LocationListener {
                 }
             }
             "STOP_SERVICE" -> {
-                if (isStarted == true) {
+                if (isStarted) {
                     stopLocationUpdates()
-                    stopForeground(true)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        stopForeground(STOP_FOREGROUND_REMOVE)
+                    } else {
+                        stopForeground(true)
+                    }
                     stopSelf()
                     isStarted = false
                 }
             }
             "SHOW_PAUSE" -> {
-                NotificationManagerCompat.from(this).notify(LOCATION_NOTIFICATION_ID, buildNotification(true, buildNotificationChannelId()));
+                NotificationManagerCompat.from(this).notify(LOCATION_NOTIFICATION_ID, buildNotification(
+                    buildNotificationChannelId()
+                ))
             }
             "SHOW_RESUME" -> {
-                NotificationManagerCompat.from(this).notify(LOCATION_NOTIFICATION_ID, buildNotification(false, buildNotificationChannelId()));
+                NotificationManagerCompat.from(this).notify(LOCATION_NOTIFICATION_ID, buildNotification(
+                    buildNotificationChannelId()
+                ))
             }
         }
         return START_STICKY
     }
 
     private fun registerForegroundService() {
-        var notification = buildNotification(true, buildNotificationChannelId())
+        val notification = buildNotification(buildNotificationChannelId())
 
         startForeground(LOCATION_NOTIFICATION_ID, notification)
     }
 
     private fun buildNotificationChannelId() : String {
-        var channelId = "";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        var channelId = ""
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             channelId = "location_service"
-            var chan = NotificationChannel(channelId, "Location Service", NotificationManager.IMPORTANCE_HIGH)
+            val chan = NotificationChannel(channelId, "Location Service", NotificationManager.IMPORTANCE_HIGH)
             chan.lightColor = R.color.colorPrimaryDark
             chan.lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
-            var service = getSystemService(NotificationManager::class.java);
-            service.createNotificationChannel(chan);
+            val service = getSystemService(NotificationManager::class.java)
+            service.createNotificationChannel(chan)
         }
         return channelId
     }
 
-    private fun buildNotification(showPause: Boolean, channelId: String): Notification {
+    private fun buildNotification(channelId: String): Notification {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle(resources.getString(R.string.app_name))
             .setContentText("You are running!")
@@ -84,13 +91,17 @@ class LocationService() : Service(), LocationListener {
             .build()
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @SuppressLint("UnspecifiedImmutableFlag")
     private fun buildIntentToShowRunActivity(): PendingIntent {
-        var notificationIntent = Intent(this, RunActivity::class.java)
+        val notificationIntent = Intent(this, RunActivity::class.java)
         notificationIntent.action = "RUN_ACTIVITY"
         notificationIntent.putExtra("SERVICE_STARTED_KEY", true)
 
-        return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        } else {
+            return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -104,27 +115,25 @@ class LocationService() : Service(), LocationListener {
 
             locMgr.requestLocationUpdates(locationProvider!!, 1000L, 0F, this)
 
-        } catch (ex: Exception) {}
+        } catch (_: Exception) {}
     }
 
     fun stopLocationUpdates() {
         try {
             locMgr.removeUpdates(this)
-        } catch (ex: Exception) {}
+        } catch (_: Exception) {}
     }
 
     override fun onBind(intent: Intent): IBinder? {
         try {
-            if (intent != null) {
-                binder = LocationServiceBinder(this)
-                return binder;
-            }
-        } catch (ex: Exception) {}
+            binder = LocationServiceBinder(this)
+            return binder
+        } catch (_: Exception) {}
         return null
     }
 
     override fun onDestroy() {
-        var notificationManager = getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(LOCATION_NOTIFICATION_ID)
 
         isStarted = false
@@ -136,9 +145,10 @@ class LocationService() : Service(), LocationListener {
             val intent = Intent("LOCATION_CHANGED")
             intent.putExtra("LOCATION_DATA", location)
             sendBroadcast(intent)
-        } catch (ex: Exception) {}
+        } catch (_: Exception) {}
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
         //TODO("Not yet implemented")
     }
@@ -154,5 +164,5 @@ class LocationService() : Service(), LocationListener {
 
 class LocationServiceBinder(private val service: LocationService) : Binder()
 {
-    fun GetLocationServiceBinder(): LocationService? = service
+    fun GetLocationServiceBinder(): LocationService = service
 }

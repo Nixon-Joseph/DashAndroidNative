@@ -11,10 +11,8 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.FrameLayout
 import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,12 +23,10 @@ import com.dashfitness.app.databinding.FragmentRunSetupBinding
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
-import com.dashfitness.app.util.animateView
 import com.google.android.material.slider.Slider
 import com.kevincodes.recyclerview.ItemDecorator
 import kotlinx.android.synthetic.main.fragment_run_setup.*
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class RunSetupFragment : Fragment() {
@@ -49,7 +45,7 @@ class RunSetupFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentRunSetupBinding.inflate(inflater);
+        binding = FragmentRunSetupBinding.inflate(inflater)
         viewModel = ViewModelProvider(this)[RunSetupViewModel::class.java]
         binding.viewModel = viewModel
         viewModel.addSegmentClicked += { clicked -> onAddSegmentButtonClicked(clicked) }
@@ -62,7 +58,7 @@ class RunSetupFragment : Fragment() {
         ) }
         setupSegmentList(inflater)
 
-        return binding.root;
+        return binding.root
     }
 
     private fun setupSegmentList(inflater: LayoutInflater) {
@@ -163,23 +159,26 @@ class RunSetupFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        activity?.findViewById<FrameLayout>(R.id.progress_overlay)?.animateView(View.GONE, 0.0f, 0)
+//        activity?.findViewById<FrameLayout>(R.id.progress_overlay)?.animateView(View.GONE, 0.0f, 0)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(RunSetupViewModel::class.java)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[RunSetupViewModel::class.java]
 
-        viewModel.navigateToRunActivity.observe(viewLifecycleOwner, Observer { navigate ->
+        viewModel.navigateToRunActivity.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
                 val intent = Intent(activity, RunActivity::class.java)
-                intent.putExtra("segments", viewModel.segments.value?.let { ArrayList(it) } ?: ArrayList<RunSegment>() as java.io.Serializable)
-                startActivity(intent);
-                viewModel.onRunNavigated();
+                intent.putExtra(
+                    "segments",
+                    viewModel.segments.value?.let { ArrayList(it) }
+                        ?: ArrayList<RunSegment>() as java.io.Serializable)
+                startActivity(intent)
+                viewModel.onRunNavigated()
             }
-        })
+        }
 
-        binding.viewModel = viewModel;
+        binding.viewModel = viewModel
     }
 
     private fun showSegmentDialog(
@@ -191,10 +190,10 @@ class RunSetupFragment : Fragment() {
     ) {
         val builder = requireActivity().let { AlertDialog.Builder(it) }
         var title = "Add "
-        if (segmentSpeed == RunSegmentSpeed.Run) {
-            title += "Run"
+        title += if (segmentSpeed == RunSegmentSpeed.Run) {
+            "Run"
         } else {
-            title += "Walk"
+            "Walk"
         }
         val view = inflater.inflate(R.layout.dialog_add_segment, null)
         builder

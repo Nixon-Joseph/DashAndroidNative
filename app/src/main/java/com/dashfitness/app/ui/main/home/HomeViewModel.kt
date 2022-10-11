@@ -1,6 +1,5 @@
 package com.dashfitness.app.ui.main.home
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
-class HomeViewModel(database: RunDatabaseDao, application: Application) : DBViewModel(database) {
+class HomeViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     /** Coroutine variables */
     /**
      * viewModelJob allows us to cancel all coroutines started by this ViewModel.

@@ -3,9 +3,9 @@ package com.dashfitness.app.ui.run
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
 import android.os.Build
+import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.LayoutInflater
@@ -22,8 +22,10 @@ import com.dashfitness.app.databinding.FragmentRunMapBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
-import java.util.function.Consumer
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 
 
 class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
@@ -35,11 +37,11 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentRunMapBinding.inflate(inflater);
+    ): View {
+        binding = FragmentRunMapBinding.inflate(inflater)
         binding.lifecycleOwner = activity
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment;
+        val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
 
         mapFragment.getMapAsync {
             googleMap = it
@@ -54,7 +56,7 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
             googleMap.uiSettings.isZoomControlsEnabled = false
             googleMap.uiSettings.setAllGesturesEnabled(true)
             activity?.let {
-                var locs = IntArray(2)
+                val locs = IntArray(2)
                 binding.infoLayout.getLocationOnScreen(locs)
                 val metrics = DisplayMetrics()
                 activity?.windowManager?.defaultDisplay?.getMetrics(metrics)
@@ -64,15 +66,15 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
             }
         }
 
-        viewModel.latLngs.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+        viewModel.latLngs.observe(viewLifecycleOwner) {
             it?.let { polyLine?.points = it }
-        })
+        }
 
-        viewModel.routeBounds.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+        viewModel.routeBounds.observe(viewLifecycleOwner) {
             googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(it, 100))
-        })
+        }
 
-        binding.viewModel = viewModel;
+        binding.viewModel = viewModel
 
         return binding.root
     }
@@ -81,19 +83,26 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onStart() {
         super.onStart()
-        val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment;
+        val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
 
-        val currentLocation: Location? = null
-        val locationManager = context?.getSystemService<LocationManager>();
+        val locationManager = context?.getSystemService<LocationManager>()
         locationManager?.getCurrentLocation(
-            LocationManager.FUSED_PROVIDER,
+            if (Build.VERSION.SDK_INT >= S) { LocationManager.FUSED_PROVIDER } else { LocationManager.GPS_PROVIDER },
             null,
-            getMainExecutor(requireContext()),
-            Consumer<Location>() { location ->
-                mapFragment.getMapAsync { map ->
-                    map.moveCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(LatLng(location.latitude, location.longitude), 16.5f, 0f, 0f)))
-                }
+            getMainExecutor(requireContext())
+        ) { location ->
+            mapFragment.getMapAsync { map ->
+                map.moveCamera(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition(
+                            LatLng(
+                                location.latitude,
+                                location.longitude
+                            ), 16.5f, 0f, 0f
+                        )
+                    )
+                )
             }
-        )
+        }
     }
 }

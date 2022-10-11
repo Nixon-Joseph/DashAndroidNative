@@ -6,10 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.dashfitness.app.databinding.ListItemRunSetupSegmentBinding
-import com.dashfitness.app.ui.main.home.RunDataAdapter
 import com.dashfitness.app.ui.main.run.models.RunSegment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 class SegmentSetupAdapter(private val segmentSetupListener: SegmentSetupListener) : ListAdapter<RunSegment, RecyclerView.ViewHolder>(SegmentSetupDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -23,8 +20,6 @@ class SegmentSetupAdapter(private val segmentSetupListener: SegmentSetupListener
             }
         }
     }
-
-
 
     class ViewHolder private constructor(val binding: ListItemRunSetupSegmentBinding) : RecyclerView.ViewHolder(binding.root){
         fun bind(item: RunSegment, clickListener: SegmentSetupListener) {
