@@ -54,16 +54,6 @@ class RunDetailFragment : Fragment() {
         mapFragment.getMapAsync {
             googleMap = it
             it.uiSettings.isMyLocationButtonEnabled = false
-            if (ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                it.isMyLocationEnabled = true
-            }
             it.uiSettings.isZoomControlsEnabled = false
             it.uiSettings.setAllGesturesEnabled(false)
             setupMapRoute()
