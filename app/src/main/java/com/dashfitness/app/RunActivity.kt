@@ -32,7 +32,7 @@ class RunActivity : AppCompatActivity() {
         setSupportActionBar(toolbar);
         val dataSource = RunDatabase.getInstance(application).runDatabaseDao
 
-        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource, application)
+        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource)
         viewModel = ViewModelProvider(this, viewModelFactory).get(RunViewModel::class.java)
         binding.viewModel = viewModel
 

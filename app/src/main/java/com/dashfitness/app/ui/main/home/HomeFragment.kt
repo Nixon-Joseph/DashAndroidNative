@@ -26,7 +26,7 @@ class HomeFragment : Fragment() {
         val application = requireNotNull(this.activity).application
 
         val dataSource = RunDatabase.getInstance(application).runDatabaseDao
-        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource, application)
+        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource)
 
         val viewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
 
