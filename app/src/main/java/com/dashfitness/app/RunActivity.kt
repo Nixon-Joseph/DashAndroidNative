@@ -43,8 +43,6 @@ class RunActivity : AppCompatActivity() {
         adapter.addFragment(runMapFragment, "Map")
         adapter.addFragment(runStatsFragment, "Stats")
 
-        viewModel.segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
-
         binding.viewPager.adapter = adapter;
         binding.tabs.setupWithViewPager(binding.viewPager);
 
@@ -62,11 +60,14 @@ class RunActivity : AppCompatActivity() {
 
         viewModel.finishActivity += { finish() }
 
+        val segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
+
         viewModel.initialize(
             { r -> registerReceiver(r, IntentFilter("LOCATION_CHANGED"))},
             { r -> unregisterReceiver(r)},
             { startForegroundServiceCompat(LocationService::class.java, "START_SERVICE") },
-            { startForegroundServiceCompat(LocationService::class.java, "STOP_SERVICE") }
+            { startForegroundServiceCompat(LocationService::class.java, "STOP_SERVICE") },
+            segments
         )
     }
 

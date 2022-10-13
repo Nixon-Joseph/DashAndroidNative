@@ -11,6 +11,7 @@ import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.database.RunSegmentData
 import com.dashfitness.app.ui.main.run.models.RunSegment
+import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -25,7 +26,10 @@ import kotlin.math.min
 class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private var viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-    var segments: ArrayList<RunSegment> = ArrayList()
+    private var currentSegmentIndex = -1
+    private val currentSegment: RunSegment?
+        get() = if (currentSegmentIndex >= 0) { _segments[currentSegmentIndex] } else { null }
+    private var hasSegments: Boolean = false
 
     private val _latLngs = MutableLiveData<ArrayList<LatLng>>()
     val latLngs: LiveData<ArrayList<LatLng>>
@@ -63,6 +67,8 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     val finishActivity = Event(onFinishActivity)
 
     private var _timeElapsed = 0L
+    private var _timeElapsedInSegment = 0L
+    private var totalSegmentDistance: Double = 0.0
     private var startTime: Long = 0L
     private var minAltitude: Double? = null
     private var maxAltitude: Double? = null
@@ -81,7 +87,13 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
 
     val startRunVisibility = Transformations.map(runState) {
         when (it) {
-            RunStates.Paused, RunStates.Unstarted -> View.VISIBLE
+            RunStates.Unstarted -> View.VISIBLE
+            else -> View.GONE
+        }
+    }
+    val restartRunVisibility = Transformations.map(runState) {
+        when (it) {
+            RunStates.Paused -> View.VISIBLE
             else -> View.GONE
         }
     }
@@ -109,6 +121,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private lateinit var _startLocService: () -> Unit
     private lateinit var _stopLocService: () -> Unit
     private lateinit var _unregisterReceiver: (r: BroadcastReceiver) -> Unit
+    private lateinit var _segments: ArrayList<RunSegment>
     private var _serviceRunning = false
 
     init {
@@ -126,7 +139,8 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         registerReceiver: (r: BroadcastReceiver) -> Unit,
         unregisterReceiver: (r: BroadcastReceiver) -> Unit,
         startLocService: () -> Unit,
-        stopLocService: () -> Unit
+        stopLocService: () -> Unit,
+        segments: ArrayList<RunSegment>
     ) {
         _unregisterReceiver = unregisterReceiver
         _startLocService = startLocService
@@ -134,21 +148,30 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         _locService = WeakReference(LocationService())
         _receiver = LocationBroadcastReceiver()
         _latLngs.value = ArrayList()
+        _segments = segments
         _receiver.locationReceived += { loc ->
             if (loc != null) {
-                processNewLoc(loc)
-                _latLngs.value?.add(LatLng(loc.latitude, loc.longitude))
-                _latLngs.notifyObservers()
+                if (runState.value == RunStates.Running) {
+                    processNewLoc(loc)
+                    _latLngs.value?.add(LatLng(loc.latitude, loc.longitude))
+                    _latLngs.notifyObservers()
+                } else {
+                    updateMapCamera(loc)
+                }
             }
         }
         registerReceiver(_receiver)
+        _startLocService()
+        _serviceRunning = true
     }
 
     private val locations = arrayListOf<Location>()
 
     private fun processNewLoc(loc: Location) {
         if (locations.size > 0) {
-            totalDistance += locations.last().distanceTo(loc) / if(isMetric) 1000.0 else 1609.344
+            val newDistance = locations.last().distanceTo(loc) / if(isMetric) 1000.0 else 1609.344
+            totalDistance += newDistance
+            totalSegmentDistance += newDistance
             minAltitude = minAltitude?.let { min(it, loc.altitude) }
             maxAltitude = maxAltitude?.let { max(it, loc.altitude) }
             minLat = minLat?.let { min(it, loc.latitude) }
@@ -163,6 +186,13 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
             minLng = loc.longitude
             maxLng = loc.longitude
         }
+        if (hasSegments) {
+            currentSegment?.let {
+                if (it.type == RunSegmentType.DISTANCE && totalSegmentDistance >= it.value) {
+                    nextSegment()
+                }
+            }
+        }
         elevationChange = maxAltitude!! - minAltitude!!
         val builder = LatLngBounds.builder()
         builder.include(LatLng(minLat!!, minLng!!))
@@ -174,6 +204,12 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         locations.add(loc)
     }
 
+    private fun updateMapCamera(loc: Location) {
+        val builder = LatLngBounds.builder()
+        builder.include(LatLng(loc.latitude, loc.longitude))
+        _routeBounds.value = builder.build()
+    }
+
     private fun updateDisplayLabels() {
         _totalDistanceString.value = String.format("%.1f", totalDistance)
         _averagePaceString.value = if (averagePace > 0) convertLongToTimeString(averagePace) else "∞"
@@ -183,14 +219,45 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         _distanceTypeString.value = if(isMetric) "km" else "miles"
     }
 
+    private var _lastTimerTime = 0L
     private fun startRunTimer() {
         stopRunTimer()
-        timer = Timer("RunTimer", false).schedule(100, 100) {
-            if (runState.value == RunStates.Running) {
-                val newTime = System.currentTimeMillis() - startTime
-                _timeElapsed = newTime
-                _timeElapsedString.postValue(convertLongToTimeString(newTime))
+        _lastTimerTime = System.currentTimeMillis()
+        timer = Timer("RunTimer", false).schedule(0, 100) {
+            onTimerSchedule(System.currentTimeMillis() - _lastTimerTime)
+            _lastTimerTime = System.currentTimeMillis()
+        }
+    }
+
+    private fun onTimerSchedule(deltaTime: Long) {
+        if (runState.value == RunStates.Running) {
+            _timeElapsed += deltaTime
+            _timeElapsedInSegment += deltaTime
+            _timeElapsedString.postValue(convertLongToTimeString(_timeElapsed))
+            if (hasSegments) {
+                currentSegment?.let {
+                    if (it.type == RunSegmentType.TIME) {
+                        val totalSeconds = _timeElapsedInSegment / MILLIS_IN_SECOND
+                        val totalMinutes = totalSeconds / SECONDS_IN_MINUTE
+                        if (totalMinutes >= it.value) {
+                            nextSegment()
+                        }
+                    }
+                }
             }
+        }
+    }
+
+    private fun nextSegment() {
+        // TODO: next segment stuff
+        if (_segments.count() > currentSegmentIndex + 1) {
+            currentSegmentIndex++
+            _timeElapsedInSegment = 0L
+            totalSegmentDistance = 0.0
+            // TODO: speak new segment instructions
+            // TODO: speak previous segment info
+        } else { // end of run
+            onEndRunClicked()
         }
     }
 
@@ -261,15 +328,20 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
 
     fun onPauseClicked() {
         runState.value = RunStates.Paused
-        stopRunTimer()
+    }
+
+    fun onRestartClicked() {
+        runState.value = RunStates.Running
     }
 
     fun onStartClicked() {
         startTime = System.currentTimeMillis()
         runState.value = RunStates.Running
+        if (_segments.isNotEmpty()) {
+            hasSegments = true
+            currentSegmentIndex = 0
+        }
         startRunTimer()
-        _startLocService()
-        _serviceRunning = true
     }
 
     enum class RunStates {

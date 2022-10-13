@@ -3,6 +3,7 @@
     <string name="menu_item_home">Home</string>
     <string name="menu_item_run">Run</string>
     <string name="run_map_start_run_button">Start Run</string>
+    <string name="run_map_restart_run_button">Continue</string>
     <string name="run_map_cancel_button">Cancel</string>
     <string name="run_fragment_time_label">Time</string>
     <string name="run_fragment_distance_label">Distance</string>

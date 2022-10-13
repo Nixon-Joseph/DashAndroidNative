@@ -26,6 +26,20 @@
         tools:showIn="@layout/fragment_run_map">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/mapRestartRunButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:onClick="@{() -> viewModel.onRestartClicked()}"
+            android:text="@string/run_map_restart_run_button"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+            android:visibility="@{viewModel.restartRunVisibility}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/mapButtonGuideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/mapStartRunButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
