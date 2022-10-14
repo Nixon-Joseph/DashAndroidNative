@@ -199,7 +199,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         builder.include(LatLng(maxLat!!, maxLng!!))
         _routeBounds.value = builder.build()
         averagePace = calculatePace(_timeElapsed, totalDistance)
-        //TODO('set calories burnt')
+        caloriesBurnt = ((_timeElapsed.toDouble() / MILLIS_IN_SECOND / SECONDS_IN_MINUTE) * (2.5 * 1.3)).toInt()
         updateDisplayLabels()
         locations.add(loc)
     }
