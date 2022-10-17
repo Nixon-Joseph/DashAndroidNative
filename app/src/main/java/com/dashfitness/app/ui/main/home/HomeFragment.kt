@@ -6,29 +6,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dashfitness.app.R
-import com.dashfitness.app.database.RunDatabase
+import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.databinding.FragmentHomeBinding
-import com.dashfitness.app.util.DashDBViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
-    private lateinit var viewModel: HomeViewModel
+    private val viewModel: HomeViewModel by viewModels()
     private lateinit var linearLayoutManager: LinearLayoutManager
+    @Inject
+    lateinit var dataSource: RunDatabaseDao
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val binding: FragmentHomeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
-
-        val application = requireNotNull(this.activity).application
-
-        val dataSource = RunDatabase.getInstance(application).runDatabaseDao
-        val viewModelFactory = DashDBViewModelFactory<Int>(dataSource)
-
-        val viewModel = ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
 
         binding.viewModel = viewModel
 
@@ -58,10 +55,5 @@ class HomeFragment : Fragment() {
         binding.lifecycleOwner = this
 
         return binding.root
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
     }
 }

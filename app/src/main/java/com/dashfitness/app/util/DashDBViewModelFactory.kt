@@ -7,6 +7,7 @@ import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.ui.main.home.HomeViewModel
 import com.dashfitness.app.ui.main.run.detail.RunDetailViewModel
 import java.lang.IllegalArgumentException
+import javax.inject.Inject
 
 @Suppress("UNCHECKED_CAST")
 class DashDBViewModelFactory<T>(
@@ -29,4 +30,8 @@ class DashDBViewModelFactory<T>(
     }
 }
 
-open class DBViewModel(protected val database: RunDatabaseDao) : ViewModel()
+class RunDetailViewModelFactory(var database: RunDatabaseDao, var runId: Long) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return return RunDetailViewModel(database, runId) as T
+    }
+}

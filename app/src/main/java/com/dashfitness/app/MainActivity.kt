@@ -1,12 +1,8 @@
 package com.dashfitness.app
 
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
@@ -17,9 +13,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.dashfitness.app.databinding.ActivityMainBinding
 import com.dashfitness.app.util.Constants.REQUEST_CODE_LOCATION_PERMISSIONS
 import com.dashfitness.app.util.TrackingUtility
+import dagger.hilt.android.AndroidEntryPoint
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     lateinit var binding: ActivityMainBinding
 

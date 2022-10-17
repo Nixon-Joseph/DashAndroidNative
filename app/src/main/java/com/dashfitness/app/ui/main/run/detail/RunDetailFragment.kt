@@ -1,18 +1,16 @@
 package com.dashfitness.app.ui.main.run.detail
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.dashfitness.app.R
-import com.dashfitness.app.database.RunDatabase
+import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.databinding.FragmentRunDetailBinding
-import com.dashfitness.app.util.DashDBViewModelFactory
+import com.dashfitness.app.util.RunDetailViewModelFactory
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -22,16 +20,27 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 
+@AndroidEntryPoint
 class RunDetailFragment : Fragment() {
-    private lateinit var viewModel: RunDetailViewModel
+    @Inject
+    lateinit var database: RunDatabaseDao
+    private val args: RunDetailFragmentArgs by navArgs()
+    val viewModelFactory: RunDetailViewModelFactory by lazy {
+        RunDetailViewModelFactory(database, args.runId)
+    }
+    private val viewModel: RunDetailViewModel by viewModels { viewModelFactory }
     private lateinit var binding: FragmentRunDetailBinding
     private var googleMap: GoogleMap? = null
     private var allLocs: ArrayList<LatLng>? = null
     private lateinit var allElevations: ArrayList<Float>
+    @Inject
+    lateinit var dataSource: RunDatabaseDao
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,13 +48,6 @@ class RunDetailFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentRunDetailBinding.inflate(inflater, container, false)
-
-        val application = requireNotNull(this.activity).application
-        val arguments = RunDetailFragmentArgs.fromBundle(requireArguments())
-
-        val dataSource = RunDatabase.getInstance(application).runDatabaseDao
-        val viewModelFactory = DashDBViewModelFactory(dataSource, arguments.runId)
-        viewModel = ViewModelProvider(this, viewModelFactory)[RunDetailViewModel::class.java]
 
         binding.viewModel = viewModel
 

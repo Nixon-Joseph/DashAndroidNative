@@ -9,6 +9,7 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import com.dashfitness.app.database.RunData
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
@@ -19,15 +20,18 @@ import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import java.util.*
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.concurrent.schedule
 import kotlin.math.max
 import kotlin.math.min
 
-class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
+@HiltViewModel
+class RunViewModel @Inject constructor(private val database: RunDatabaseDao) : ViewModel() {
     private var viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     private var currentSegmentIndex = -1
@@ -76,10 +80,10 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private var startTime: Long = 0L
     private var minAltitude: Double? = null
     private var maxAltitude: Double? = null
-    private var minLat: Double? = null
-    private var maxLat: Double? = null
-    private var minLng: Double? = null
-    private var maxLng: Double? = null
+    var minLat: Double? = null
+    var maxLat: Double? = null
+    var minLng: Double? = null
+    var maxLng: Double? = null
     private var totalDistance: Double = 0.0
     private var averagePace: Long = 0L
     private var caloriesBurnt: Int = 0
