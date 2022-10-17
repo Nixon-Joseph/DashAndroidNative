@@ -13,8 +13,10 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.MutableLiveData
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
+import com.google.android.gms.maps.model.LatLng
 
 const val LOCATION_NOTIFICATION_ID = 17
 
@@ -24,6 +26,11 @@ class LocationService : Service(), LocationListener {
     private var isStarted: Boolean = false
 
     override fun onCreate() { }
+
+    companion object {
+        val isTracking = MutableLiveData<Boolean>()
+        val pathPoints = MutableLiveData<MutableList<MutableList<LatLng>>>()
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -97,10 +104,10 @@ class LocationService : Service(), LocationListener {
         notificationIntent.action = "RUN_ACTIVITY"
         notificationIntent.putExtra("SERVICE_STARTED_KEY", true)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
         } else {
-            return PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 

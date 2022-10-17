@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
+import kotlinx.android.synthetic.main.fragment_run_map.*
 
 
 class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
@@ -77,6 +78,10 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
         binding.viewModel = viewModel
 
         return binding.root
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

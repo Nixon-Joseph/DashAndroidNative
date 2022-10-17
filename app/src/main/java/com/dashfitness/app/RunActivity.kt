@@ -1,8 +1,13 @@
 package com.dashfitness.app
 
+import android.content.Intent
 import android.content.IntentFilter
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -10,20 +15,23 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import com.dashfitness.app.databinding.ActivityRunBinding
 import com.dashfitness.app.database.RunDatabase
+import com.dashfitness.app.services.TrackingService
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.run.RunMapFragment
 import com.dashfitness.app.ui.run.RunStatsFragment
-import com.dashfitness.app.util.DashDBViewModelFactory
-import com.dashfitness.app.util.LocationService
-import com.dashfitness.app.util.startForegroundServiceCompat
+import com.dashfitness.app.util.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 
 class RunActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityRunBinding;
-    private lateinit var viewModel: RunViewModel;
-    private lateinit var runMapFragment: RunMapFragment;
-    private lateinit var runStatsFragment: RunStatsFragment;
+    private lateinit var binding: ActivityRunBinding
+    private lateinit var viewModel: RunViewModel
+    private lateinit var runMapFragment: RunMapFragment
+    private lateinit var runStatsFragment: RunStatsFragment
+    private lateinit var tts: TextToSpeech
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,23 +66,40 @@ class RunActivity : AppCompatActivity() {
             builder.show()
         }
 
+        tts = TextToSpeech(this, { Log.i("TAG", it.toString()) })
+
         viewModel.finishActivity += { finish() }
 
         val segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
 
+        val _receiver = LocationBroadcastReceiver()
+        val locs = ArrayList<Location>()
+        _receiver.locationReceived += { loc ->
+            loc?.let {
+                locs.add(loc)
+                Log.i("locationReceived_2", "lat: ${loc.latitude}, lon: ${loc.longitude}, accuracy: ${loc.accuracy}, totalCount: ${locs.count()}")
+            }
+        }
+        registerReceiver(_receiver, IntentFilter("LOCATION_CHANGED"))
+
         viewModel.initialize(
-            { r -> registerReceiver(r, IntentFilter("LOCATION_CHANGED"))},
+            { r -> /*registerReceiver(r, IntentFilter("LOCATION_CHANGED"))*/},
             { r -> unregisterReceiver(r)},
-            { startForegroundServiceCompat(LocationService::class.java, "START_SERVICE") },
-            { startForegroundServiceCompat(LocationService::class.java, "STOP_SERVICE") },
-            segments
+            { sendCommandToService(Constants.ACTION_START_OR_RESUME_SERVICE) },
+            { sendCommandToService(Constants.ACTION_STOP_SERVICE) },
+//            { startForegroundServiceCompat(LocationService::class.java, "START_SERVICE") },
+//            { startForegroundServiceCompat(LocationService::class.java, "STOP_SERVICE") },
+            segments,
+            tts,
+            savedInstanceState
         )
     }
 
-    override fun onDestroy() {
-        viewModel.terminateLocationService()
-        super.onDestroy()
-    }
+    private fun sendCommandToService(action: String) =
+        Intent(this, TrackingService::class.java).also {
+            it.action = action
+            this.startService(it)
+        }
 
     class ViewPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {
         private val _fragmentList = ArrayList<Fragment>();

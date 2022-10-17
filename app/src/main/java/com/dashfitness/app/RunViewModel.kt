@@ -2,6 +2,9 @@ package com.dashfitness.app
 
 import android.content.BroadcastReceiver
 import android.location.Location
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +14,7 @@ import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.database.RunSegmentData
 import com.dashfitness.app.ui.main.run.models.RunSegment
+import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.*
 import com.google.android.gms.maps.model.LatLng
@@ -123,6 +127,8 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     private lateinit var _unregisterReceiver: (r: BroadcastReceiver) -> Unit
     private lateinit var _segments: ArrayList<RunSegment>
     private var _serviceRunning = false
+    private lateinit var _tts: TextToSpeech
+    private var _bundle: Bundle? = null
 
     init {
         _timeElapsedString.value = "00:00"
@@ -140,7 +146,9 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         unregisterReceiver: (r: BroadcastReceiver) -> Unit,
         startLocService: () -> Unit,
         stopLocService: () -> Unit,
-        segments: ArrayList<RunSegment>
+        segments: ArrayList<RunSegment>,
+        tts: TextToSpeech,
+        activityBundle: Bundle?
     ) {
         _unregisterReceiver = unregisterReceiver
         _startLocService = startLocService
@@ -151,6 +159,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         _segments = segments
         _receiver.locationReceived += { loc ->
             if (loc != null) {
+                Log.i("locationReceived", "lat: ${loc.latitude}, lon: ${loc.longitude}, accuracy: ${loc.accuracy}")
                 if (runState.value == RunStates.Running) {
                     processNewLoc(loc)
                     _latLngs.value?.add(LatLng(loc.latitude, loc.longitude))
@@ -163,6 +172,8 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
         registerReceiver(_receiver)
         _startLocService()
         _serviceRunning = true
+        _tts = tts
+        _bundle = activityBundle
     }
 
     private val locations = arrayListOf<Location>()
@@ -254,7 +265,7 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
             currentSegmentIndex++
             _timeElapsedInSegment = 0L
             totalSegmentDistance = 0.0
-            // TODO: speak new segment instructions
+            speakSegment()
             // TODO: speak previous segment info
         } else { // end of run
             onEndRunClicked()
@@ -337,11 +348,22 @@ class RunViewModel(database: RunDatabaseDao) : DBViewModel(database) {
     fun onStartClicked() {
         startTime = System.currentTimeMillis()
         runState.value = RunStates.Running
+        _tts.speak("Let's go!", TextToSpeech.QUEUE_ADD, _bundle, UUID.randomUUID().toString())
         if (_segments.isNotEmpty()) {
             hasSegments = true
             currentSegmentIndex = 0
+            speakSegment()
         }
         startRunTimer()
+    }
+
+    private fun speakSegment() {
+        currentSegment?.let {
+            when (it.speed) {
+                RunSegmentSpeed.Run -> _tts.speak("Run!", TextToSpeech.QUEUE_ADD, _bundle, UUID.randomUUID().toString())
+                RunSegmentSpeed.Walk -> _tts.speak("Walk!", TextToSpeech.QUEUE_ADD, _bundle, UUID.randomUUID().toString())
+            }
+        }
     }
 
     enum class RunStates {
