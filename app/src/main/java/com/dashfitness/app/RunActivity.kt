@@ -68,6 +68,8 @@ class RunActivity : AppCompatActivity() {
 
         tts = TextToSpeech(this) { }
 
+        TrackingService.tts = tts
+
         segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
 
         subscribeToObservers()
@@ -106,13 +108,6 @@ class RunActivity : AppCompatActivity() {
         }
     }
 
-    private fun speakSegment(segment: RunSegment) {
-        when (segment.speed) {
-            RunSegmentSpeed.Run -> tts.speak("Run!", TextToSpeech.QUEUE_ADD, bundle, UUID.randomUUID().toString())
-            RunSegmentSpeed.Walk -> tts.speak("Walk!", TextToSpeech.QUEUE_ADD, bundle, UUID.randomUUID().toString())
-        }
-    }
-
     private fun subscribeToObservers() {
         TrackingService.isTracking.observe(this) {
             updateTracking(it)
@@ -131,7 +126,7 @@ class RunActivity : AppCompatActivity() {
         }
 
         TrackingService.newSegment.observe(this) {
-            speakSegment(it)
+
         }
     }
 

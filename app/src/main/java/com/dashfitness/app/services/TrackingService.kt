@@ -8,6 +8,7 @@ import android.content.Intent
 import android.location.Location
 import android.os.Build
 import android.os.Looper
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -16,6 +17,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.dashfitness.app.R
 import com.dashfitness.app.ui.main.run.models.RunSegment
+import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.Constants.ACTION_PAUSE_SERVICE
 import com.dashfitness.app.util.Constants.ACTION_START_OR_RESUME_SERVICE
@@ -41,7 +43,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 
@@ -52,7 +56,6 @@ typealias Polylines = MutableList<Polyline>
 class TrackingService : LifecycleService() {
     var isFirstRun = true
     var serviceKilled = false
-
     @Inject
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -81,6 +84,7 @@ class TrackingService : LifecycleService() {
         var timeStarted = 0L
         var timeRun = 0L
         val runLocations = ArrayList<Location>()
+        var tts: TextToSpeech? = null
     }
 
     private fun postInitialValues() {
@@ -314,7 +318,6 @@ class TrackingService : LifecycleService() {
     }
 
     private fun nextSegment() {
-        // TODO: next segment stuff
         if (runSegments.count() > currentSegmentIndex + 1) {
             currentSegmentIndex++
             timeElapsedInSegment = 0L
@@ -322,9 +325,19 @@ class TrackingService : LifecycleService() {
             timeRun += lapTime
             timeStarted = System.currentTimeMillis()
             newSegment.postValue(currentSegment)
+            speakSegment(currentSegment)
             // TODO: speak previous segment info
         } else if (!isFirstRun) {
             // end of run
+        }
+    }
+
+    private fun speakSegment(segment: RunSegment?) {
+        segment?.let {
+            when (it.speed) {
+                RunSegmentSpeed.Run -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.Walk -> tts?.speak("Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+            }
         }
     }
 }
