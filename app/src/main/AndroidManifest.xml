@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.dashfitness.app">
-    <!--
-         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-         Google Maps Android API v2, but you must specify either coarse or fine
-         location permissions for the 'MyLocation' functionality.
-    -->
+    package="com.dashfitness.appbeta2">
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -32,7 +28,7 @@
     </queries>
 
     <application
-        android:name=".BaseApplication"
+        android:name="com.dashfitness.app.BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -61,25 +57,13 @@
             android:value="@integer/google_play_services_version" />
 
         <service
-            android:name=".util.LocationService"
+            android:name="com.dashfitness.app.services.TrackingService"
             android:exported="true"
+            android:foregroundServiceType="location"
             android:permission="android.permission.ACCESS_FINE_LOCATION" />
 
-        <service
-            android:name=".services.TrackingService"
-            android:foregroundServiceType="location" />
-
-        <receiver
-            android:name=".util.LocationBroadcastReceiver"
-            android:exported="true"
-            android:permission="android.permission.ACCESS_FINE_LOCATION">
-            <intent-filter>
-                <action android:name="LOCATION_CHANGED" />
-            </intent-filter>
-        </receiver>
-
         <activity
-            android:name=".RunActivity"
+            android:name="com.dashfitness.app.RunActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:launchMode="singleTask"
@@ -94,7 +78,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.dashfitness.app.MainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:screenOrientation="portrait"

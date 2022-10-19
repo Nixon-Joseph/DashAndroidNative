@@ -34,3 +34,7 @@ fun calculatePace(timeElapsed: Long, distance: Double): Long {
         0
     }
 }
+
+fun calculateDistance(distanceInMeters: Double, isMetric: Boolean): Double {
+    return distanceInMeters / if(isMetric) 1000.0 else 1609.344
+}

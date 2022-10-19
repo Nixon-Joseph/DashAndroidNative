@@ -29,18 +29,13 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.dashfitness.app.services.Polyline
 import com.dashfitness.app.services.TrackingService
-import com.google.android.gms.maps.CameraUpdate
-import com.google.android.gms.maps.model.LatLngBounds
-import kotlinx.android.synthetic.main.fragment_run_map.*
-import timber.log.Timber
-
 
 class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     private lateinit var binding: FragmentRunMapBinding
     private var viewModel: RunViewModel = runViewModel
     private lateinit var googleMap: GoogleMap
+    private var mapInitialized: Boolean = false
 
-    private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
 
     override fun onCreateView(
@@ -54,6 +49,7 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
 
         mapFragment.getMapAsync {
             googleMap = it
+            mapInitialized = true
             googleMap.uiSettings.isMyLocationButtonEnabled = false
             googleMap.isMyLocationEnabled = ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -74,9 +70,6 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
                 addAllPolylines()
             }
         }
-        viewModel.routeBounds.observe(viewLifecycleOwner) {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(it, 100))
-        }
 
         binding.viewModel = viewModel
 
@@ -89,37 +82,29 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     }
 
     private fun subscribeToObservers() {
-        TrackingService.isTracking.observe(viewLifecycleOwner, Observer {
-            updateTracking(it)
-        })
-
         TrackingService.pathPoints.observe(viewLifecycleOwner, Observer {
             pathPoints = it
             addLatestPolyline()
             moveCameraToUser()
             Log.d("ASD", "HIT")
         })
-
-        TrackingService.timeRunInMillis.observe(viewLifecycleOwner, Observer {
-
-        })
-    }
-
-    private fun updateTracking(isTracking: Boolean) {
-        this.isTracking = isTracking
     }
 
     private fun moveCameraToUser() {
         if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
-//            val builder = LatLngBounds.builder()
-//            builder.include(LatLng(viewModel.minLat!!, viewModel.minLng!!))
-//            builder.include(LatLng(viewModel.maxLat!!, viewModel.maxLng!!))
-//            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pathPoints.last().last(), 15f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pathPoints.last().last(), 18f))
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (mapInitialized) {
+            addAllPolylines()
         }
     }
 
     private fun addAllPolylines() {
+        googleMap.clear()
         for (polyline in pathPoints) {
             val polylineOptions = PolylineOptions()
                 .color(R.color.colorAccent)
@@ -140,10 +125,6 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
                 .add(lastLatLng)
             googleMap.addPolyline(polylineOptions)
         }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
