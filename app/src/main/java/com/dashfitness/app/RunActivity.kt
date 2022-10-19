@@ -9,8 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
+import com.dashfitness.app.database.RunData
 import com.dashfitness.app.databinding.ActivityRunBinding
 import com.dashfitness.app.database.RunDatabaseDao
+import com.dashfitness.app.database.RunLocationData
+import com.dashfitness.app.database.RunSegmentData
 import com.dashfitness.app.services.TrackingService
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
@@ -19,6 +22,7 @@ import com.dashfitness.app.ui.run.RunStatsFragment
 import com.dashfitness.app.util.Constants.ACTION_PAUSE_SERVICE
 import com.dashfitness.app.util.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.dashfitness.app.util.Constants.ACTION_STOP_SERVICE
+import com.dashfitness.app.util.calculatePace
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
@@ -137,7 +141,8 @@ class RunActivity : AppCompatActivity() {
 
     private suspend fun stopRun() {
         sendCommandToService(ACTION_STOP_SERVICE)
-        saveRun()
+        val endTime = System.currentTimeMillis()
+        saveRun(endTime)
         finish()
     }
 
@@ -147,51 +152,41 @@ class RunActivity : AppCompatActivity() {
             this.startService(it)
         }
 
-
-//    fun doEndRun() {
-//        terminateLocationService()
-//        _unregisterReceiver(_receiver)
-//        val endTime = System.currentTimeMillis()
-//        uiScope.async {
-////            saveRun(endTime)
-//        }
-//    }
-//
-    private suspend fun saveRun() {
-//        coroutineScope {
-//            withContext(Dispatchers.IO) {
-//                val runId = dataSource.insert(
-//                    RunData(
-//                        startTimeMilli = startTime,
-//                        endTimeMilli = endTime,
-//                        totalDistance = totalDistance,
-//                        averagePace = averagePace
-//                    )
-//                )
-//                val segmentId = dataSource.insert(
-//                    RunSegmentData(
-//                        runId = runId,
-//                        startTimeMilli = startTime,
-//                        endTimeMilli = endTime
-//                    )
-//                )
-//                val locDataList = ArrayList<RunLocationData>()
-//                listOf(locations.forEachIndexed { index, loc ->
-//                    locDataList.add(
-//                        RunLocationData(
-//                            segmentId = segmentId,
-//                            runId = runId,
-//                            latitude = loc.latitude,
-//                            longitude = loc.longitude,
-//                            altitude = loc.altitude,
-//                            index = index
-//                        )
-//                    )
-//                })
-//                dataSource.insert(locDataList)
-//            }
+    private suspend fun saveRun(endTime: Long) {
+        coroutineScope {
+            withContext(Dispatchers.IO) {
+                val runId = dataSource.insert(
+                    RunData(
+                        startTimeMilli = TrackingService.timeStarted,
+                        endTimeMilli = endTime,
+                        totalDistance = TrackingService.totalDistance.value!!,
+                        averagePace = calculatePace(TrackingService.timeRun, TrackingService.totalDistance.value!!)
+                    )
+                )
+                val segmentId = dataSource.insert(
+                    RunSegmentData(
+                        runId = runId,
+                        startTimeMilli = TrackingService.timeStarted,
+                        endTimeMilli = endTime
+                    )
+                )
+                val locDataList = ArrayList<RunLocationData>()
+                listOf(TrackingService.runLocations.forEachIndexed { index, loc ->
+                    locDataList.add(
+                        RunLocationData(
+                            segmentId = segmentId,
+                            runId = runId,
+                            latitude = loc.latitude,
+                            longitude = loc.longitude,
+                            altitude = loc.altitude,
+                            index = index
+                        )
+                    )
+                })
+                dataSource.insert(locDataList)
+            }
             finish()
-//        }
+        }
     }
 
     class ViewPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {

@@ -78,6 +78,9 @@ class TrackingService : LifecycleService() {
         var totalSegmentDistance = 0.0
         val newSegment = MutableLiveData<RunSegment>()
         var isMetric: Boolean = false
+        var timeStarted = 0L
+        var timeRun = 0L
+        val runLocations = ArrayList<Location>()
     }
 
     private fun postInitialValues() {
@@ -137,8 +140,6 @@ class TrackingService : LifecycleService() {
 
     private var isTimerEnabled = false
     private var lapTime = 0L
-    private var timeRun = 0L
-    private var timeStarted = 0L
     private var lastSecondTimestamp = 0L
 
     private fun startTimer() {
@@ -229,6 +230,7 @@ class TrackingService : LifecycleService() {
                 var newDistance = 0.0
                 result.locations.let { locations ->
                    for (location in locations) {
+                       runLocations.add(location)
                        if (lastLocation == null) {
                            minElevation = location.altitude
                            maxElevation = location.altitude
