@@ -114,6 +114,13 @@ class TrackingService : LifecycleService() {
         postInitialValues()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+        timeRun = 0L
+        timeRunInSeconds.value = 0
+        timeStarted = 0L
+        timeRunInMillis.value = 0L
+        timeElapsedInSegment = 0L
+        totalSegmentDistance = 0.0
+        totalDistance.value = 0.0
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
