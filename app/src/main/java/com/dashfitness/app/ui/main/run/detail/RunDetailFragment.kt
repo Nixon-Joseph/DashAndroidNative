@@ -10,6 +10,9 @@ import androidx.navigation.fragment.navArgs
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.databinding.FragmentRunDetailBinding
+import com.dashfitness.app.services.LatLngAlt
+import com.dashfitness.app.services.Polyline
+import com.dashfitness.app.services.Polylines
 import com.dashfitness.app.util.RunDetailViewModelFactory
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -37,7 +40,7 @@ class RunDetailFragment : Fragment() {
     private val viewModel: RunDetailViewModel by viewModels { viewModelFactory }
     private lateinit var binding: FragmentRunDetailBinding
     private var googleMap: GoogleMap? = null
-    private var allLocs: ArrayList<LatLng>? = null
+    private var pathPoints: ArrayList<ArrayList<LatLng>>? = null
     private lateinit var allElevations: ArrayList<Float>
     @Inject
     lateinit var dataSource: RunDatabaseDao
@@ -64,10 +67,16 @@ class RunDetailFragment : Fragment() {
         viewModel.runLocs.observe(viewLifecycleOwner) {
             it?.let {
                 allElevations = ArrayList()
-                allLocs = ArrayList()
-                it.forEach { locData ->
-                    allLocs!!.add(LatLng(locData.latitude, locData.longitude))
-                    allElevations.add(locData.altitude.toFloat())
+                pathPoints = ArrayList()
+                it.groupBy {
+                        x -> x.polylineIndex
+                }.forEach { locDataList ->
+                    val collection = arrayListOf<LatLng>()
+                    for (runLocationData in locDataList.value) {
+                        collection.add(LatLng(runLocationData.latitude, runLocationData.longitude))
+                        allElevations.add(runLocationData.altitude.toFloat())
+                    }
+                    pathPoints!!.add(collection)
                 }
                 allElevations = smoothElevations(allElevations)
                 setupMapRoute()
@@ -147,23 +156,26 @@ class RunDetailFragment : Fragment() {
     }
 
     private fun setupMapRoute() {
-        if (googleMap != null && allLocs != null) {
-            googleMap!!.addPolyline(PolylineOptions().addAll(allLocs!!))
+        if (googleMap != null && pathPoints != null) {
             var minLat: Double? = null
             var minLng: Double? = null
             var maxLat: Double? = null
             var maxLng: Double? = null
-            allLocs!!.forEach {
-                if (minLat == null) {
-                    minLat = it.latitude
-                    maxLat = it.latitude
-                    minLng = it.longitude
-                    maxLng = it.longitude
-                } else {
-                    minLat = min(it.latitude, minLat!!)
-                    maxLat = max(it.latitude, maxLat!!)
-                    minLng = min(it.longitude, minLng!!)
-                    maxLng = max(it.longitude, maxLng!!)
+            pathPoints!!.forEach { latLngList ->
+                googleMap!!.addPolyline(PolylineOptions().addAll(latLngList))
+
+                latLngList.forEach { latLng ->
+                    if (minLat == null) {
+                        minLat = latLng.latitude
+                        maxLat = latLng.latitude
+                        minLng = latLng.longitude
+                        maxLng = latLng.longitude
+                    } else {
+                        minLat = min(latLng.latitude, minLat!!)
+                        maxLat = max(latLng.latitude, maxLat!!)
+                        minLng = min(latLng.longitude, minLng!!)
+                        maxLng = max(latLng.longitude, maxLng!!)
+                    }
                 }
             }
             val builder = LatLngBounds.builder()

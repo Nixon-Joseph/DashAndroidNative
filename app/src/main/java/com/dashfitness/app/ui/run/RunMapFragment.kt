@@ -86,13 +86,12 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
             pathPoints = it
             addLatestPolyline()
             moveCameraToUser()
-            Log.d("ASD", "HIT")
         })
     }
 
     private fun moveCameraToUser() {
         if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pathPoints.last().last(), 18f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(pathPoints.last().last().to(), 18f))
         }
     }
 
@@ -109,7 +108,7 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
             val polylineOptions = PolylineOptions()
                 .color(R.color.colorAccent)
                 .width(8f)
-                .addAll(polyline)
+                .addAll(polyline.map { x -> x.to() })
             googleMap.addPolyline(polylineOptions)
         }
     }
@@ -121,8 +120,8 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
             val polylineOptions = PolylineOptions()
                 .color(R.color.colorAccent)
                 .width(8f)
-                .add(preLastLatLng)
-                .add(lastLatLng)
+                .add(preLastLatLng.to())
+                .add(lastLatLng.to())
             googleMap.addPolyline(polylineOptions)
         }
     }

@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
-
     @Provides
     @Singleton
     fun provideRunDatabase(
@@ -22,6 +21,8 @@ class AppModule {
         app,
         RunDatabase::class.java,
         "run_database"
+    ).fallbackToDestructiveMigrationFrom(
+        2
     ).build()
 
     @Provides

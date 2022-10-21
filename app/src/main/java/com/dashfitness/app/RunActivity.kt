@@ -14,9 +14,9 @@ import com.dashfitness.app.databinding.ActivityRunBinding
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.database.RunSegmentData
+import com.dashfitness.app.services.Polylines
 import com.dashfitness.app.services.TrackingService
 import com.dashfitness.app.ui.main.run.models.RunSegment
-import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.run.RunMapFragment
 import com.dashfitness.app.ui.run.RunStatsFragment
 import com.dashfitness.app.util.Constants.ACTION_PAUSE_SERVICE
@@ -42,8 +42,10 @@ class RunActivity : AppCompatActivity() {
     private lateinit var runStatsFragment: RunStatsFragment
     private lateinit var tts: TextToSpeech
     private lateinit var segments: ArrayList<RunSegment>
+    private val trackedRunSegments = ArrayList<TrackedRunSegment>()
     private var bundle: Bundle? = null
     private var isTracking = false
+    private var pathPoints: Polylines = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,8 +70,6 @@ class RunActivity : AppCompatActivity() {
 
         tts = TextToSpeech(this) { }
 
-        TrackingService.tts = tts
-
         segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
 
         subscribeToObservers()
@@ -79,6 +79,7 @@ class RunActivity : AppCompatActivity() {
 
     private fun addViewModelEvents() {
         viewModel.endRun += {
+            sendCommandToService(ACTION_PAUSE_SERVICE)
             val builder = MaterialAlertDialogBuilder(this)
             builder.setTitle("Are you sure?")
             builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
@@ -87,13 +88,15 @@ class RunActivity : AppCompatActivity() {
                     stopRun()
                 }
             }
-            builder.setNegativeButton(android.R.string.no) { _, _ -> }
+            builder.setNegativeButton(android.R.string.no) { _, _ ->
+                sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
+            }
             builder.show()
         }
 
         viewModel.cancelRun += { finish() }
         viewModel.startRun += {
-            TrackingService.runSegments = segments
+            TrackingService.setupRun(segments, tts)
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
             viewModel.runState.postValue(RunViewModel.RunStates.Running)
             tts.speak("Lets go!", TextToSpeech.QUEUE_ADD, bundle, UUID.randomUUID().toString())
@@ -125,8 +128,29 @@ class RunActivity : AppCompatActivity() {
             viewModel.updateElevationChange(it)
         }
 
-        TrackingService.newSegment.observe(this) {
+        TrackingService.pathPoints.observe(this) {
+            pathPoints = it
+        }
 
+        TrackingService.newSegment.observe(this) { it ->
+            if (it == null) {
+                GlobalScope.async {
+                    stopRun()
+                }
+            } else {
+                val now = System.currentTimeMillis()
+                finishCurrentSegment(now)
+                trackedRunSegments.add(TrackedRunSegment(now, it))
+            }
+        }
+    }
+
+    private fun finishCurrentSegment(time: Long) {
+        if (trackedRunSegments.isNotEmpty()) {
+            trackedRunSegments.last().apply {
+                stopTime = time
+                distance = TrackingService.totalSegmentDistance
+            }
         }
     }
 
@@ -137,6 +161,7 @@ class RunActivity : AppCompatActivity() {
     private suspend fun stopRun() {
         sendCommandToService(ACTION_STOP_SERVICE)
         val endTime = System.currentTimeMillis()
+        finishCurrentSegment(endTime)
         saveRun(endTime)
         finish()
     }
@@ -158,25 +183,32 @@ class RunActivity : AppCompatActivity() {
                         averagePace = calculatePace(TrackingService.timeRun, TrackingService.totalDistance.value!!)
                     )
                 )
-                val segmentId = dataSource.insert(
-                    RunSegmentData(
-                        runId = runId,
-                        startTimeMilli = TrackingService.timeStarted,
-                        endTimeMilli = endTime
-                    )
-                )
-                val locDataList = ArrayList<RunLocationData>()
-                listOf(TrackingService.runLocations.forEachIndexed { index, loc ->
-                    locDataList.add(
-                        RunLocationData(
-                            segmentId = segmentId,
+                trackedRunSegments.forEach { trackedRunSegment ->
+                    dataSource.insert(
+                        RunSegmentData(
                             runId = runId,
-                            latitude = loc.latitude,
-                            longitude = loc.longitude,
-                            altitude = loc.altitude,
-                            index = index
+                            startTimeMilli = trackedRunSegment.startTime,
+                            endTimeMilli = trackedRunSegment.stopTime,
+                            runSpeed = trackedRunSegment.speed,
+                            distance = trackedRunSegment.distance,
+                            pace = calculatePace(trackedRunSegment.stopTime - trackedRunSegment.startTime, trackedRunSegment.distance)
                         )
                     )
+                }
+                val locDataList = ArrayList<RunLocationData>()
+                listOf(pathPoints.forEachIndexed { lineIndex, line ->
+                    listOf(line.forEachIndexed { locIndex, loc ->
+                        locDataList.add(
+                            RunLocationData(
+                                runId = runId,
+                                latitude = loc.latitude,
+                                longitude = loc.longitude,
+                                altitude = loc.altitude,
+                                polylineIndex = lineIndex,
+                                index = locIndex
+                            )
+                        )
+                    })
                 })
                 dataSource.insert(locDataList)
             }
@@ -204,5 +236,10 @@ class RunActivity : AppCompatActivity() {
             _fragmentList.add(fragment);
             _fragmentTitleList.add(title);
         }
+    }
+
+    private class TrackedRunSegment(var startTime: Long, segment: RunSegment) : RunSegment(segment.type, segment.speed, segment.value) {
+        var distance: Double = 0.0
+        var stopTime: Long = 0L
     }
 }

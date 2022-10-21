@@ -16,6 +16,8 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.dashfitness.app.R
+import com.dashfitness.app.database.RunLocationData
+import com.dashfitness.app.services.TrackingService.Companion.tts
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
@@ -49,7 +51,7 @@ import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 
-typealias Polyline = MutableList<LatLng>
+typealias Polyline = MutableList<LatLngAlt>
 typealias Polylines = MutableList<Polyline>
 
 @AndroidEntryPoint
@@ -58,8 +60,6 @@ class TrackingService : LifecycleService() {
     var serviceKilled = false
     @Inject
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    private val timeRunInSeconds = MutableLiveData<Long>()
 
     @Inject
     lateinit var baseNotificationBuilder: NotificationCompat.Builder
@@ -85,6 +85,20 @@ class TrackingService : LifecycleService() {
         var timeRun = 0L
         val runLocations = ArrayList<Location>()
         var tts: TextToSpeech? = null
+        val timeRunInSeconds = MutableLiveData<Long>()
+        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech) {
+            timeRun = 0L
+            timeRunInSeconds.value = 0
+            timeStarted = 0L
+            timeRunInMillis.value = 0L
+            timeElapsedInSegment = 0L
+            totalSegmentDistance = 0.0
+            totalDistance.value = 0.0
+            tts = textToSpeech
+            segments?.let {
+                runSegments = segments
+            }
+        }
     }
 
     private fun postInitialValues() {
@@ -114,13 +128,6 @@ class TrackingService : LifecycleService() {
         postInitialValues()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
-        timeRun = 0L
-        timeRunInSeconds.value = 0
-        timeStarted = 0L
-        timeRunInMillis.value = 0L
-        timeElapsedInSegment = 0L
-        totalSegmentDistance = 0.0
-        totalDistance.value = 0.0
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -275,7 +282,7 @@ class TrackingService : LifecycleService() {
 
     private fun addPathPoint(location: Location?) {
         location?.let {
-            val pos = LatLng(location.latitude, location.longitude)
+            val pos = LatLngAlt(location)
             pathPoints.value?.apply {
                 last().add(pos)
                 pathPoints.postValue(this)
@@ -327,15 +334,23 @@ class TrackingService : LifecycleService() {
     private fun nextSegment() {
         if (runSegments.count() > currentSegmentIndex + 1) {
             currentSegmentIndex++
+            newSegment.postValue(currentSegment)
+            speakSegment(currentSegment)
             timeElapsedInSegment = 0L
             totalSegmentDistance = 0.0
             timeRun += lapTime
             timeStarted = System.currentTimeMillis()
-            newSegment.postValue(currentSegment)
-            speakSegment(currentSegment)
             // TODO: speak previous segment info
-        } else if (!isFirstRun) {
-            // end of run
+        } else {
+            if (isFirstRun) {
+                runSegments.add(RunSegment(RunSegmentType.NONE, RunSegmentSpeed.NONE, 0f))
+                newSegment.postValue(currentSegment)
+                currentSegmentIndex++
+                timeElapsedInSegment = 0L
+                totalSegmentDistance = 0.0
+            } else { // end of run
+                newSegment.postValue(null)
+            }
         }
     }
 
@@ -344,7 +359,27 @@ class TrackingService : LifecycleService() {
             when (it.speed) {
                 RunSegmentSpeed.Run -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 RunSegmentSpeed.Walk -> tts?.speak("Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.NONE -> {}
             }
         }
+    }
+}
+
+class LatLngAlt {
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
+    var altitude: Double = 0.0
+
+    constructor(latitude: Double, longitude: Double, altitude: Double) {
+        this.latitude = latitude
+        this.longitude = longitude
+        this.altitude = altitude
+    }
+
+    constructor(loc: Location) : this(loc.latitude, loc.longitude, loc.altitude) { }
+    constructor(loc: RunLocationData) : this(loc.latitude, loc.longitude, loc.altitude) { }
+
+    fun to(): LatLng {
+        return LatLng(latitude, longitude)
     }
 }

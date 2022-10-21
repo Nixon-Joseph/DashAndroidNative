@@ -19,5 +19,4 @@ class MainRepository @Inject constructor(
     fun getAllRuns() = runDao.getAllRuns()
     fun getRunSegments(runId: Long) = runDao.getRunSegments(runId)
     fun getRunLocations(runId: Long) = runDao.getRunLocations(runId)
-    fun getSegmentLocations(segmentId: Long) = runDao.getSegmentLocations(segmentId)
 }
