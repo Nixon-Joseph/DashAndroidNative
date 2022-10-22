@@ -19,5 +19,7 @@ class RunLocationData(
     @ColumnInfo(name = "polyline_index")
     val polylineIndex: Int,
     @ColumnInfo(name = "altitude")
-    val altitude: Double
+    val altitude: Double,
+    @ColumnInfo(name = "time", defaultValue = "0")
+    val time: Long
 )

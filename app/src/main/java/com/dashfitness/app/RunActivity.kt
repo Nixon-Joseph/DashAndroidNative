@@ -14,6 +14,7 @@ import com.dashfitness.app.databinding.ActivityRunBinding
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.database.RunSegmentData
+import com.dashfitness.app.services.LatLngAltTime
 import com.dashfitness.app.services.Polylines
 import com.dashfitness.app.services.TrackingService
 import com.dashfitness.app.ui.main.run.models.RunSegment
@@ -205,6 +206,7 @@ class RunActivity : AppCompatActivity() {
                                 longitude = loc.longitude,
                                 altitude = loc.altitude,
                                 polylineIndex = lineIndex,
+                                time = loc.time,
                                 index = locIndex
                             )
                         )

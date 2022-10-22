@@ -51,7 +51,7 @@ import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.math.min
 
-typealias Polyline = MutableList<LatLngAlt>
+typealias Polyline = MutableList<LatLngAltTime>
 typealias Polylines = MutableList<Polyline>
 
 @AndroidEntryPoint
@@ -282,7 +282,7 @@ class TrackingService : LifecycleService() {
 
     private fun addPathPoint(location: Location?) {
         location?.let {
-            val pos = LatLngAlt(location)
+            val pos = LatLngAltTime(location)
             pathPoints.value?.apply {
                 last().add(pos)
                 pathPoints.postValue(this)
@@ -365,19 +365,21 @@ class TrackingService : LifecycleService() {
     }
 }
 
-class LatLngAlt {
+class LatLngAltTime {
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     var altitude: Double = 0.0
+    var time: Long = 0L
 
-    constructor(latitude: Double, longitude: Double, altitude: Double) {
+    constructor(latitude: Double, longitude: Double, altitude: Double, time: Long) {
         this.latitude = latitude
         this.longitude = longitude
         this.altitude = altitude
+        this.time = time
     }
 
-    constructor(loc: Location) : this(loc.latitude, loc.longitude, loc.altitude) { }
-    constructor(loc: RunLocationData) : this(loc.latitude, loc.longitude, loc.altitude) { }
+    constructor(loc: Location) : this(loc.latitude, loc.longitude, loc.altitude, loc.time) { }
+    constructor(loc: RunLocationData) : this(loc.latitude, loc.longitude, loc.altitude, loc.time) { }
 
     fun to(): LatLng {
         return LatLng(latitude, longitude)

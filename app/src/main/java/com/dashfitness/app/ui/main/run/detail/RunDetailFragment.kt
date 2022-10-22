@@ -10,9 +10,6 @@ import androidx.navigation.fragment.navArgs
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.databinding.FragmentRunDetailBinding
-import com.dashfitness.app.services.LatLngAlt
-import com.dashfitness.app.services.Polyline
-import com.dashfitness.app.services.Polylines
 import com.dashfitness.app.util.RunDetailViewModelFactory
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -179,9 +176,11 @@ class RunDetailFragment : Fragment() {
                 }
             }
             val builder = LatLngBounds.builder()
-            builder.include(LatLng(minLat!!, minLng!!))
-            builder.include(LatLng(maxLat!!, maxLng!!))
-            googleMap!!.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
+            minLng?.let {
+                builder.include(LatLng(minLat!!, minLng!!))
+                builder.include(LatLng(maxLat!!, maxLng!!))
+                googleMap!!.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
+            }
             binding.collapsingAppBar.setExpanded(true, true)
         }
     }

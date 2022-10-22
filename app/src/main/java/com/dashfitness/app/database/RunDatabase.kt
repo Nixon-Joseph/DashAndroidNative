@@ -10,10 +10,11 @@ import androidx.room.RoomDatabase
         RunSegmentData::class,
         RunLocationData::class
                ],
-    version = 4,
+    version = 5,
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(from = 3, to = 4)
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5),
     ]
 )
 abstract class RunDatabase : RoomDatabase() {
