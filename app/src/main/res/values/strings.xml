@@ -3,7 +3,7 @@
     <string name="menu_item_home">Home</string>
     <string name="menu_item_run">Run</string>
     <string name="run_map_start_run_button">Start Run</string>
-    <string name="run_setup_start_run_button">Confirm</string>
+    <string name="run_setup_start_run_button">Continue</string>
     <string name="run_map_restart_run_button">Continue</string>
     <string name="run_map_cancel_button">Cancel</string>
     <string name="run_fragment_time_label">Time</string>
@@ -14,6 +14,7 @@
     <string name="run_cal_measurement_label">kcal</string>
     <string name="run_elevation_change_label">Elevation Change</string>
     <string name="run_end_run">End Run</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="run_setup_training_button_text">Training</string>
+    <string name="run_setup_custom_button_text">Custom</string>
+    <string name="no_segments_selected_text">No segments selected. You can add segments with the + button below. Or click START RUNto proceed without segments</string>
 </resources>

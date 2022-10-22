@@ -16,7 +16,7 @@
         tools:context=".ui.main.run.setup.RunSetupFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout5"
+            android:id="@+id/runSetupNavContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
@@ -30,162 +30,69 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
                 android:background="#FFFFFF"
                 android:elevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
                     <Button
-                        android:id="@+id/button"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:id="@+id/trainingButton"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:textColor="@color/white"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="4dp"
                         android:layout_marginBottom="8dp"
-                        android:text="Training"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:onClick="@{() -> viewModel.onTrainingToggleClick()}"
+                        android:text="@string/run_setup_training_button_text"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/button2"
+                        app:layout_constraintEnd_toStartOf="@+id/customButton"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <Button
-                        android:id="@+id/button2"
+                        android:id="@+id/customButton"
                         android:layout_width="0dp"
+                        android:backgroundTint="@color/white"
+                        android:textColor="@color/colorPrimaryDark"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_marginBottom="8dp"
-                        android:text="Custom"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:onClick="@{() -> viewModel.onCustomToggleClick()}"
+                        android:text="@string/run_setup_custom_button_text"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toEndOf="@+id/button"
+                        app:layout_constraintStart_toEndOf="@+id/trainingButton"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </FrameLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:onClick="@{() -> viewModel.onRunClick()}"
-                android:text="@string/run_setup_start_run_button"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/frameLayout"
-                app:layout_constraintStart_toStartOf="@+id/frameLayout"
-                app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/addSegmentButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="24dp"
-            android:layout_marginBottom="24dp"
-            android:background="#8BC34A"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="@{() -> viewModel.onAddSegmentClicked()}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_add_black_24dp"
-            android:contentDescription="Plus Icon" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/runButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:focusable="true"
-            android:clickable="true"
-            android:onClick="@{() -> viewModel.onAddRunSegmentClicked()}"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/addSegmentButton"
-            app:layout_constraintEnd_toEndOf="@+id/addSegmentButton"
-            app:srcCompat="@drawable/ic_directions_run_black_24dp"
-            android:contentDescription="Run Icon" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/walkButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:focusable="true"
-            android:clickable="true"
-            android:onClick="@{() -> viewModel.onAddWalkSegmentClicked()}"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/runButton"
-            app:layout_constraintEnd_toEndOf="@+id/addSegmentButton"
-            app:srcCompat="@drawable/ic_baseline_directions_walk_24"
-            android:contentDescription="Walk Icon" />
-
-        <FrameLayout
-            android:id="@+id/frameLayout2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="#BDBDBD"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout5">
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Segments" />
-        </FrameLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/segmentConstraint"
+        <com.dashfitness.app.components.NoSwipeViewPager
+            android:id="@+id/runSetupPager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout2"
-            tools:context=".ui.main.run.setup.RunSetupFragment">
+            app:layout_constraintTop_toBottomOf="@+id/runSetupNavContainer"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/segment_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:listitem="@layout/list_item_run_setup_segment" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text='No segments selected. You can add segments with the + button below. Or click "START RUN" to proceed without segments'
-            android:textAlignment="viewStart"
-            app:visibleWhenListEmpty="@{viewModel.segments}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
-
-        <!--        <include-->
-<!--            layout="@layout/include_progress_overlay"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent" />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
