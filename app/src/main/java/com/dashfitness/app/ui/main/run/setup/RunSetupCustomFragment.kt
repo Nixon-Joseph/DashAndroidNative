@@ -176,7 +176,7 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
     ) {
         val builder = requireActivity().let { AlertDialog.Builder(it) }
         var title = "Add "
-        title += if (segmentSpeed == RunSegmentSpeed.Run) {
+        title += if (segmentSpeed == RunSegmentSpeed.RUN) {
             "Run"
         } else {
             "Walk"

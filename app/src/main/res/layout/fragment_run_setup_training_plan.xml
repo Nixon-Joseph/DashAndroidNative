@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.main.run.setup.RunSetupTrainingPlanFragment">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.dashfitness.app.ui.main.run.setup.RunSetupPlanViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/training_run_container"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/planLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.planName}"
+            android:textAlignment="center"
+            android:textSize="34sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/training_run_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="5K Active" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/training_run_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/planLabel"
+            tools:listitem="@layout/list_item_training_run" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

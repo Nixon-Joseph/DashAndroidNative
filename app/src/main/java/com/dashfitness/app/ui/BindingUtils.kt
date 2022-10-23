@@ -6,6 +6,8 @@ import androidx.core.view.isVisible
 import androidx.databinding.BindingAdapter
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunData
+import com.dashfitness.app.training.ITrainingRun
+import com.dashfitness.app.training.TrainingRun
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
@@ -42,10 +44,17 @@ fun MaterialTextView.setText(segment: RunSegment) {
     }
 }
 
+@BindingAdapter("trainingRunTitle")
+fun MaterialTextView.setText(run: ITrainingRun) {
+    run.let {
+        text = it.Name
+    }
+}
+
 @BindingAdapter("runSegmentIcon")
 fun AppCompatImageView.setSrc(segment: RunSegment) {
     segment.let {
-        if (segment.speed == RunSegmentSpeed.Run) {
+        if (segment.speed == RunSegmentSpeed.RUN) {
             setImageResource(R.drawable.ic_directions_run_black_24dp)
         } else {
             setImageResource(R.drawable.ic_baseline_directions_walk_24)

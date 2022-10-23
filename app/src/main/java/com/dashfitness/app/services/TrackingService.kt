@@ -17,7 +17,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunLocationData
-import com.dashfitness.app.services.TrackingService.Companion.tts
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
@@ -357,8 +356,11 @@ class TrackingService : LifecycleService() {
     private fun speakSegment(segment: RunSegment?) {
         segment?.let {
             when (it.speed) {
-                RunSegmentSpeed.Run -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                RunSegmentSpeed.Walk -> tts?.speak("Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.RUN -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.WALK -> tts?.speak("Brisk Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.WARM_UP -> tts?.speak("Warm Up!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.COOL_DOWN -> tts?.speak("Cool Down!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentSpeed.TEMPO_RUN -> tts?.speak("Tempo Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 RunSegmentSpeed.NONE -> {}
             }
         }

@@ -1,39 +1,20 @@
 package com.dashfitness.app.ui.main.run.setup
 
-import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.widget.Button
-import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
 import com.dashfitness.app.ui.main.run.models.RunSegment
-import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
-import com.dashfitness.app.ui.main.run.models.RunSegmentType
-import com.dashfitness.app.ui.run.RunMapFragment
-import com.dashfitness.app.ui.run.RunStatsFragment
-import com.google.android.material.slider.Slider
-import com.kevincodes.recyclerview.ItemDecorator
 import kotlinx.android.synthetic.main.fragment_run_setup.*
-import kotlinx.android.synthetic.main.fragment_run_setup_custom.*
-import kotlinx.android.synthetic.main.fragment_run_setup_training.*
 import java.util.*
 
 

@@ -1,15 +1,8 @@
 package com.dashfitness.app.ui.main.run.setup
 
-import android.content.res.Resources
-import android.graphics.Color
-import android.view.View
-import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.dashfitness.app.R
-import com.dashfitness.app.RunViewModel
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
@@ -67,11 +60,11 @@ class RunSetupViewModel : ViewModel() {
     val addRunSegmentClicked = Event(onAddRunSegment)
 
     fun onAddRunSegmentClicked() {
-        onAddRunSegment.invoke(RunSegmentSpeed.Run)
+        onAddRunSegment.invoke(RunSegmentSpeed.RUN)
     }
 
     fun onAddWalkSegmentClicked() {
-        onAddRunSegment.invoke(RunSegmentSpeed.Walk)
+        onAddRunSegment.invoke(RunSegmentSpeed.WALK)
     }
 
     fun addSegment(type: RunSegmentType, speed: RunSegmentSpeed, value: Float) {

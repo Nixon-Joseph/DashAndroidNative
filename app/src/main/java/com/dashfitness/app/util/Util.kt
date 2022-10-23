@@ -38,3 +38,11 @@ fun calculatePace(timeElapsed: Long, distance: Double): Long {
 fun calculateDistance(distanceInMeters: Double, isMetric: Boolean): Double {
     return distanceInMeters / if(isMetric) 1000.0 else 1609.344
 }
+
+fun kilometersToMiles(distanceInKilometers: Float) : Float {
+    return distanceInKilometers / 1.609f
+}
+
+fun milesToKilometers(distanceInMiles: Float): Float {
+    return distanceInMiles * 1.609f
+}

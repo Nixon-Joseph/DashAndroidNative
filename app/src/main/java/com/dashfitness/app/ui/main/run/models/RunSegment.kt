@@ -4,6 +4,11 @@ import java.util.*
 import java.util.UUID.randomUUID
 
 open class RunSegment(val type: RunSegmentType, val speed: RunSegmentSpeed, val value: Float): java.io.Serializable {
+    companion object {
+        fun Time(speed: RunSegmentSpeed, value: Float): RunSegment { return RunSegment(RunSegmentType.TIME, speed, value) }
+        fun Distance(speed: RunSegmentSpeed, value: Float): RunSegment { return RunSegment(RunSegmentType.DISTANCE, speed, value) }
+    }
+
     val id: UUID = randomUUID()
 }
 
@@ -12,5 +17,5 @@ enum class RunSegmentType {
 }
 
 enum class RunSegmentSpeed {
-    Walk, Run, NONE
+    WALK, RUN, NONE, WARM_UP, COOL_DOWN, TEMPO_RUN
 }

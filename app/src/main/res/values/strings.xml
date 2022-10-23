@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Dash - Lite</string>
     <string name="menu_item_home">Home</string>
-    <string name="menu_item_run">Run</string>
+    <string name="menu_item_run">Run Setup</string>
     <string name="run_map_start_run_button">Start Run</string>
     <string name="run_setup_start_run_button">Continue</string>
     <string name="run_map_restart_run_button">Continue</string>
@@ -17,4 +17,6 @@
     <string name="run_setup_training_button_text">Training</string>
     <string name="run_setup_custom_button_text">Custom</string>
     <string name="no_segments_selected_text">No segments selected. You can add segments with the + button below. Or click START RUNto proceed without segments</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
