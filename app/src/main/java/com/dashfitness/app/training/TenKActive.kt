@@ -11,40 +11,44 @@ class TenKActive: TrainingPlan(
     NAME,
     DESCRIPTION,
     arrayListOf(
-        TenKActiveTrainingRun("w1d1", "Week 1 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w1d2", "Week 1 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w1d3", "Week 1 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w2d1", "Week 2 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w2d2", "Week 2 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w2d3", "Week 2 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w3d1", "Week 3 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w3d2", "Week 3 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w3d3", "Week 3 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w4d1", "Week 4 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w4d2", "Week 4 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w4d3", "Week 4 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w5d1", "Week 5 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w5d2", "Week 5 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w5d3", "Week 5 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w5d4", "Week 5 Day 4", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w6d1", "Week 6 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w6d2", "Week 6 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w6d3", "Week 6 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w6d4", "Week 6 Day 4", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w7d1", "Week 7 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w7d2", "Week 7 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w7d3", "Week 7 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w7d4", "Week 7 Day 4", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w8d1", "Week 8 Day 1", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w8d2", "Week 8 Day 2", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w8d3", "Week 8 Day 3", "Lorem Ipsum"),
-        TenKActiveTrainingRun("w8d4", "Week 8 Day 4", "Lorem Ipsum"),
+        TenKActiveTrainingRun("w1d1", "Week 1 Day 1", "1 min running / 2 min walking, for 30 minutes."),
+        TenKActiveTrainingRun("w1d2", "Week 1 Day 2", "1 min running / 2 min walking, for 30 minutes."),
+        TenKActiveTrainingRun("w1d3", "Week 1 Day 3", "12 min running."),
+        TenKActiveTrainingRun("w2d1", "Week 2 Day 1", "1 min running / 1 min walking, for 30 minutes."),
+        TenKActiveTrainingRun("w2d2", "Week 2 Day 2", "1 min running / 1 min walking, for 30 minutes."),
+        TenKActiveTrainingRun("w2d3", "Week 2 Day 3", "18 min running."),
+        TenKActiveTrainingRun("w3d1", "Week 3 Day 1", "1.5 min running / 0.5 min walking, for 30 minutes."),
+        TenKActiveTrainingRun("w3d2", "Week 3 Day 2", "1.5 min running / 0.5 min walking, for 30 minutes."),
+        TenKActiveTrainingRun("w3d3", "Week 3 Day 3", "26 min running"),
+        TenKActiveTrainingRun("w4d1", "Week 4 Day 1", "2 min run / 1 min walk, for 30 minutes."),
+        TenKActiveTrainingRun("w4d2", "Week 4 Day 2", "2 min run / 1 min walk, for 30 minutes."),
+        TenKActiveTrainingRun("w4d3", "Week 4 Day 3", "Run a 5K!"),
+        TenKActiveTrainingRun("w5d1", "Week 5 Day 1", "2.5 mile run."),
+        TenKActiveTrainingRun("w5d2", "Week 5 Day 2", "1.5 mile run."),
+        TenKActiveTrainingRun("w5d3", "Week 5 Day 3", "2.5 mile run."),
+        TenKActiveTrainingRun("w5d4", "Week 5 Day 4", "4 mile run."),
+        TenKActiveTrainingRun("w6d1", "Week 6 Day 1", "2.5 mile run."),
+        TenKActiveTrainingRun("w6d2", "Week 6 Day 2", "1.5 mile run."),
+        TenKActiveTrainingRun("w6d3", "Week 6 Day 3", "2.5 mile run."),
+        TenKActiveTrainingRun("w6d4", "Week 6 Day 4", "4.5 mile run."),
+        TenKActiveTrainingRun("w7d1", "Week 7 Day 1", "3 mile run."),
+        TenKActiveTrainingRun("w7d2", "Week 7 Day 2", "4 mile run."),
+        TenKActiveTrainingRun("w7d3", "Week 7 Day 3", "3 mile run."),
+        TenKActiveTrainingRun("w7d4", "Week 7 Day 4", "5 mile run."),
+        TenKActiveTrainingRun("w8d1", "Week 8 Day 1", "3 mile run."),
+        TenKActiveTrainingRun("w8d2", "Week 8 Day 2", "4 mile run."),
+        TenKActiveTrainingRun("w8d3", "Week 8 Day 3", "3 mile run."),
+        TenKActiveTrainingRun("w8d4", "Week 8 Day 4", "Run your 10K!"),
     )
 ), Serializable {
     companion object {
         const val CODE: String = "10ka"
         const val NAME: String = "10K Active"
-        const val DESCRIPTION: String = "Lorem Ipsum"
+        const val DESCRIPTION: String = "The 10k distance – around 6.2 miles – is a classic benchmark for both beginners and experienced runners.\n\n" +
+                "A solid 10k can be an ambitious goal to aim for, a comfortable training run, or a gruelling race distance to runners.\n\n" +
+                "This plan is for those who are athletic or more experienced.\n\n" +
+                "If you are a beginner or non/less-active, you might want to consider the \"10K Beginner\" run plan.\n\n" +
+                "Credit: https://marathonhandbook.com - review for more information"
     }
 }
 

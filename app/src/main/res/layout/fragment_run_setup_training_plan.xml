@@ -23,11 +23,37 @@
             android:textAlignment="center"
             android:textSize="34sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/training_run_list"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="5K Active" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/planSummaryButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="More Information"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{() -> viewModel.onMoreInformationClick()}"
+            android:textAlignment="center"
+            style="@style/Widget.AppCompat.Button.Small"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/planLabel"
+            tools:text="More Information" />
+
+        <FrameLayout
+            android:id="@+id/setupPlanHR"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/border"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/planSummaryButton"
+            app:layout_constraintBottom_toTopOf="@+id/training_run_list" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/training_run_list"
@@ -36,7 +62,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/planLabel"
+            app:layout_constraintTop_toBottomOf="@+id/setupPlanHR"
             tools:listitem="@layout/list_item_training_run" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,8 +2,10 @@ package com.dashfitness.app.ui.main.run.setup
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -71,6 +73,10 @@ class RunSetupTrainingPlanFragment : Fragment() {
             }
         })
 
+        viewModel.moreInformationClick += {
+            showRunSummaryDialog(plan!!) //, inflater
+        }
+
         plan?.let {
             viewModel.init(it)
         }
@@ -93,6 +99,25 @@ class RunSetupTrainingPlanFragment : Fragment() {
             }
             .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
         view.findViewById<MaterialTextView>(R.id.selectTrainingSummaryTextView).text = run.Summary
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun showRunSummaryDialog(run: TrainingPlan/*, inflater: LayoutInflater*/) {
+        val builder = requireActivity().let { AlertDialog.Builder(it) }
+//        val view = inflater.inflate(R.layout.dialog_select_training_run, null)
+        builder
+            .setTitle("${plan?.Name}")
+            .setMessage(Html.fromHtml(plan?.Description, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL))
+//            .setView(view)
+            .setPositiveButton("marathonhandbook.com") { _dialog, _ ->
+                val webpage: Uri = Uri.parse("https://marathonhandbook.com")
+                val intent = Intent(Intent.ACTION_VIEW, webpage)
+                startActivity(intent)
+                _dialog.dismiss()
+            }
+            .setNegativeButton("Dismiss") { _dialog, _ -> _dialog.dismiss() }
+//        view.findViewById<MaterialTextView>(R.id.selectTrainingSummaryTextView).text = run.Summary
         val dialog = builder.create()
         dialog.show()
     }
