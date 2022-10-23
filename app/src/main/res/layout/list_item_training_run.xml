@@ -42,7 +42,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/run_image"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Week 4 Day 3" />
+            tools:text="Week x Day x" />
 
         <FrameLayout
             android:layout_width="match_parent"

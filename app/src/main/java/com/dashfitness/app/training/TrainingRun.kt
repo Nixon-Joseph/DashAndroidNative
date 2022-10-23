@@ -1,6 +1,7 @@
 package com.dashfitness.app.training
 
 import com.dashfitness.app.ui.main.run.models.RunSegment
+import java.io.Serializable
 
 interface ITrainingRun {
     var Code: String
@@ -9,7 +10,7 @@ interface ITrainingRun {
     fun getRunSegments(): ArrayList<RunSegment>
 }
 
-abstract class TrainingRun : ITrainingRun {
+abstract class TrainingRun : ITrainingRun, Serializable {
     constructor(
         code: String,
         name: String,

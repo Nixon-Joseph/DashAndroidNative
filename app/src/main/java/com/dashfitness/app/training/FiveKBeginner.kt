@@ -2,6 +2,7 @@ package com.dashfitness.app.training
 
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
+import java.io.Serializable
 
 // Shamelessly pulled from https://marathonhandbook.com
 class FiveKBeginner: TrainingPlan(
@@ -34,7 +35,7 @@ class FiveKBeginner: TrainingPlan(
         FiveKTrainingRun("w8d2", "Week 8 Day 2", "Lorem Ipsum"),
         FiveKTrainingRun("w8d3", "Week 8 Day 3", "Lorem Ipsum"),
     )
-) {
+), Serializable {
     companion object {
         const val CODE: String = "5kb"
         const val NAME: String = "5K Beginner"

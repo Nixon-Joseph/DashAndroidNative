@@ -1,20 +1,30 @@
 package com.dashfitness.app.ui.main.run.setup
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dashfitness.app.R
+import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupTrainingBinding
 import com.dashfitness.app.databinding.FragmentRunSetupTrainingPlanBinding
 import com.dashfitness.app.training.*
+import com.dashfitness.app.ui.main.run.models.RunSegment
+import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
+import com.dashfitness.app.ui.main.run.models.RunSegmentType
+import com.google.android.material.slider.Slider
+import com.google.android.material.textview.MaterialTextView
+import java.util.*
 
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PLAN = "plan"
@@ -49,8 +59,9 @@ class RunSetupTrainingPlanFragment : Fragment() {
         binding.viewModel = viewModel
 
         val adapter = TrainingRunAdapter(TrainingRunListener { run ->
-            viewModel.onTrainingRunClicked(run)
+            showRunDialog(run, inflater)
         })
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.trainingRunList.adapter = adapter
         binding.trainingRunList.layoutManager = linearLayoutManager
 
@@ -60,16 +71,30 @@ class RunSetupTrainingPlanFragment : Fragment() {
             }
         })
 
-        viewModel.openSelectedTrainingRunInfo.observe(requireActivity()) {
-            // TODO: open detail modal with 'start run' button
+        plan?.let {
+            viewModel.init(it)
         }
 
         // Inflate the layout for this fragment
         return binding.root
     }
 
-    fun onSelectRun(runCode: String) {
-        runSelected.postValue(plan?.Runs?.first { it.Code == runCode })
+    private fun showRunDialog(run: ITrainingRun, inflater: LayoutInflater) {
+        val builder = requireActivity().let { AlertDialog.Builder(it) }
+        val view = inflater.inflate(R.layout.dialog_select_training_run, null)
+        builder
+            .setTitle("${plan?.Name} - ${run.Name}")
+            .setView(view)
+            .setPositiveButton("Start Run") { _dialog, _ ->
+                val intent = Intent(activity, RunActivity::class.java)
+                intent.putExtra("segments", run.getRunSegments())
+                startActivity(intent)
+                _dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
+        view.findViewById<MaterialTextView>(R.id.selectTrainingSummaryTextView).text = run.Summary
+        val dialog = builder.create()
+        dialog.show()
     }
 
     companion object {
@@ -100,11 +125,4 @@ class RunSetupTrainingPlanFragment : Fragment() {
             }
         }
     }
-}
-
-enum class TrainingPlans(val value: Int) {
-    FIVE_K_BEGINNER(1),
-    FIVE_K_ACTIVE(2),
-    TEN_K_BEGINNER(3),
-    TEN_K_ACTIVE(4);
 }

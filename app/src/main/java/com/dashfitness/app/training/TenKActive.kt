@@ -3,6 +3,7 @@ package com.dashfitness.app.training
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.util.milesToKilometers
+import java.io.Serializable
 
 // Shamelessly pulled from https://marathonhandbook.com
 class TenKActive: TrainingPlan(
@@ -39,7 +40,7 @@ class TenKActive: TrainingPlan(
         TenKActiveTrainingRun("w8d3", "Week 8 Day 3", "Lorem Ipsum"),
         TenKActiveTrainingRun("w8d4", "Week 8 Day 4", "Lorem Ipsum"),
     )
-) {
+), Serializable {
     companion object {
         const val CODE: String = "10ka"
         const val NAME: String = "10K Active"

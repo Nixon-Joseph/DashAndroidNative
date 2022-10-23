@@ -18,11 +18,8 @@ class RunSetupPlanViewModel @Inject constructor() : ViewModel() {
         planRuns.postValue(plan.Runs)
     }
 
-    private val _openSelectedTrainingRunInfo = MutableLiveData<ITrainingRun?>()
-    val openSelectedTrainingRunInfo: LiveData<ITrainingRun?>
-        get() = _openSelectedTrainingRunInfo
-
-    fun onTrainingRunClicked(trainingRun: ITrainingRun) {
-        _openSelectedTrainingRunInfo.value = trainingRun
+    init {
+        planName.postValue("")
+        planRuns.postValue(ArrayList())
     }
 }
