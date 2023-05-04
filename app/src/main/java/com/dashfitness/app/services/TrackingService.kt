@@ -94,8 +94,12 @@ class TrackingService : LifecycleService() {
             totalSegmentDistance = 0.0
             totalDistance.value = 0.0
             tts = textToSpeech
-            segments?.let {
-                runSegments = segments
+            if (!segments.isNullOrEmpty()) {
+                segments.let {
+                    runSegments = segments
+                }
+            } else {
+                runSegments.add(RunSegment(RunSegmentType.NONE, RunSegmentSpeed.NONE, Float.MAX_VALUE));
             }
         }
     }
