@@ -15,6 +15,7 @@ import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.database.RunSegmentData
 import com.dashfitness.app.services.LatLngAltTime
+import com.dashfitness.app.services.Polyline
 import com.dashfitness.app.services.Polylines
 import com.dashfitness.app.services.TrackingService
 import com.dashfitness.app.ui.main.run.models.RunSegment
@@ -197,8 +198,8 @@ class RunActivity : AppCompatActivity() {
                     )
                 }
                 val locDataList = ArrayList<RunLocationData>()
-                listOf(pathPoints.forEachIndexed { lineIndex, line ->
-                    listOf(line.forEachIndexed { locIndex, loc ->
+                listOf(pathPoints.forEachIndexed { lineIndex, line: Polyline ->
+                    listOf(line.forEachIndexed { locIndex, loc: LatLngAltTime ->
                         locDataList.add(
                             RunLocationData(
                                 runId = runId,

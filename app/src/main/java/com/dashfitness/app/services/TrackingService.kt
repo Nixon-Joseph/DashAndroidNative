@@ -43,6 +43,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -57,6 +58,7 @@ typealias Polylines = MutableList<Polyline>
 class TrackingService : LifecycleService() {
     var isFirstRun = true
     var serviceKilled = false
+
     @Inject
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -85,6 +87,10 @@ class TrackingService : LifecycleService() {
         val runLocations = ArrayList<Location>()
         var tts: TextToSpeech? = null
         val timeRunInSeconds = MutableLiveData<Long>()
+        var canGiveHalfwayCue = false
+        var halfwayViaTime = false
+        var halfwayValue = 0.0
+        var alreadyHalfway = false
         fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech) {
             timeRun = 0L
             timeRunInSeconds.value = 0
@@ -100,6 +106,14 @@ class TrackingService : LifecycleService() {
                 }
             } else {
                 runSegments.add(RunSegment(RunSegmentType.NONE, RunSegmentSpeed.NONE, Float.MAX_VALUE));
+            }
+            if (runSegments.all { x -> x.type === RunSegmentType.TIME }) {
+                canGiveHalfwayCue = true
+                halfwayViaTime = true
+                halfwayValue = runSegments.sumOf { x -> x.value.toDouble() } / 2.0
+            } else if (runSegments.all { x -> x.type === RunSegmentType.DISTANCE }) {
+                canGiveHalfwayCue = true
+                halfwayValue = runSegments.sumOf { x -> x.value.toDouble() } / 2.0
             }
         }
     }
@@ -176,6 +190,8 @@ class TrackingService : LifecycleService() {
                 if (timeRunInMillis.value!! >= lastSecondTimestamp + 1000L) {
                     timeRunInSeconds.postValue(timeRunInSeconds.value!! + 1)
                     lastSecondTimestamp += 1000L
+                    val totalTimeInMinutes = (timeRun.toDouble() + lapTime.toDouble()) / MILLIS_IN_SECOND.toDouble() / SECONDS_IN_MINUTE.toDouble()
+                    checkHalfway(totalTimeInMinutes, true)
                     if (hasSegments) {
                         currentSegment?.let {
                             if (it.type == RunSegmentType.TIME) {
@@ -268,6 +284,7 @@ class TrackingService : LifecycleService() {
                 totalSegmentDistance += calculateDistance(newDistance, isMetric)
                 totalDistance.value?.apply {
                     totalDistance.postValue(this + newDistance)
+                    checkHalfway(this + newDistance, false)
                 }
                 totalElevationChange.value?.apply {
                     totalElevationChange.postValue(maxElevation - minElevation)
@@ -278,6 +295,21 @@ class TrackingService : LifecycleService() {
                             nextSegment()
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun checkHalfway(compareValue: Double, valueIsTime: Boolean) {
+        if (!alreadyHalfway && canGiveHalfwayCue) {
+            if (halfwayViaTime == valueIsTime) {
+                var modifiedCompare = compareValue
+                if (!halfwayViaTime) {
+                    modifiedCompare = compareValue / 1609.344
+                }
+                if (halfwayValue <= modifiedCompare) {
+                    alreadyHalfway = true
+                    tts?.speak("Halfway There!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 }
             }
         }
@@ -352,6 +384,7 @@ class TrackingService : LifecycleService() {
                 timeElapsedInSegment = 0L
                 totalSegmentDistance = 0.0
             } else { // end of run
+                tts?.speak("You made it! Great job.", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 newSegment.postValue(null)
             }
         }
