@@ -15,6 +15,9 @@
         <action
             android:id="@+id/action_home_to_runDetailFragment"
             app:destination="@id/run_detail_fragment" />
+        <action
+            android:id="@+id/action_home_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/dash_run_setup"
@@ -35,6 +38,14 @@
             app:argType="long" />
         <action
             android:id="@+id/action_run_detail_fragment_to_home"
+            app:destination="@id/home" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.dashfitness.app.ui.preferences.SettingsFragment"
+        android:label="SettingsFragment" >
+        <action
+            android:id="@+id/action_settingsFragment_to_home2"
             app:destination="@id/home" />
     </fragment>
 </navigation>

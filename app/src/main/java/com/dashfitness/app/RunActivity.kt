@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.dashfitness.app.database.RunData
 import com.dashfitness.app.databinding.ActivityRunBinding
 import com.dashfitness.app.database.RunDatabaseDao
@@ -96,9 +97,13 @@ class RunActivity : AppCompatActivity() {
             builder.show()
         }
 
-        viewModel.cancelRun += { finish() }
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        viewModel.cancelRun += {
+            setResult(RESULT_CANCELED)
+            finish()
+        }
         viewModel.startRun += {
-            TrackingService.setupRun(segments, tts)
+            TrackingService.setupRun(segments, tts, preferences)
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
             viewModel.runState.postValue(RunViewModel.RunStates.Running)
             tts.speak("Lets go!", TextToSpeech.QUEUE_ADD, bundle, UUID.randomUUID().toString())
@@ -165,7 +170,6 @@ class RunActivity : AppCompatActivity() {
         val endTime = System.currentTimeMillis()
         finishCurrentSegment(endTime)
         saveRun(endTime)
-        finish()
     }
 
     private fun sendCommandToService(action: String) =
@@ -214,8 +218,11 @@ class RunActivity : AppCompatActivity() {
                     })
                 })
                 dataSource.insert(locDataList)
+                val intent = Intent()
+                intent.putExtra("RunId", runId)
+                setResult(RESULT_OK, intent)
+                finish()
             }
-            finish()
         }
     }
 

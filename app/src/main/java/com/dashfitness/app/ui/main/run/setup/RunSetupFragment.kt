@@ -1,18 +1,23 @@
 package com.dashfitness.app.ui.main.run.setup
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.dashfitness.app.MainActivity
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
+import com.dashfitness.app.ui.main.home.HomeFragmentDirections
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import kotlinx.android.synthetic.main.fragment_run_setup.*
 import java.util.*
@@ -59,6 +64,16 @@ class RunSetupFragment : Fragment() {
         }
     }
 
+    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        run {
+            if (result.resultCode == Activity.RESULT_OK) {
+                val controller = this.findNavController()
+                controller.navigate(RunSetupFragmentDirections.actionDashRunSetupToHome())
+                controller.navigate(HomeFragmentDirections.actionHomeToRunDetailFragment(result.data!!.getLongExtra("RunId", 0)))
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[RunSetupViewModel::class.java]
@@ -70,7 +85,7 @@ class RunSetupFragment : Fragment() {
                     "segments",
                     viewModel.segments.value?.let { ArrayList(it) }
                         ?: ArrayList<RunSegment>() as java.io.Serializable)
-                startActivity(intent)
+                resultLauncher.launch(intent)
                 viewModel.onRunNavigated()
             }
         }

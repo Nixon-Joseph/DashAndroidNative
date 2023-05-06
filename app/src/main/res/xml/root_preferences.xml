@@ -1,0 +1,58 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="@string/general_header">
+
+        <SwitchPreferenceCompat
+            app:key="metric"
+            app:title="Use Metric Units"
+            app:summary="If true, you'll see kilos, meters, kilometers instead of lbs, feet, and miles"/>
+
+        <SwitchPreferenceCompat
+            app:key="halfway_cue"
+            app:title="Enable Halfway Cue"
+            android:defaultValue="true"
+            app:summary="When true, the app will notify you when you've reached halfway in your run. Note it cannot always determine what 'halfway' is depending on the segments you provide for the run"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/calorie_header">
+
+        <SwitchPreferenceCompat
+            app:key="estimate_calories"
+            app:title="Estimate Calories"
+            app:summary="Whether or not to provide a calorie burn estimate - based on height, weight, and age."
+            />
+
+        <EditTextPreference
+            app:key="height_feet"
+            android:inputType="number"
+            app:title="Height Feet"/>
+
+        <EditTextPreference
+            app:key="height_inches"
+            android:inputType="number"
+            app:title="Height Inches"/>
+
+        <EditTextPreference
+            app:key="height_cm"
+            android:inputType="number"
+            app:title="Height Centimeters"/>
+
+        <EditTextPreference
+            app:key="weight_lbs"
+            android:inputType="number"
+            app:title="Weight In LBS"/>
+
+        <EditTextPreference
+            app:key="weight_kilo"
+            android:inputType="numberDecimal"
+            app:title="Weight In Kilos"/>
+
+        <EditTextPreference
+            app:key="age"
+            android:inputType="number"
+            app:title="Age"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

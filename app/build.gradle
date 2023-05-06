@@ -16,8 +16,8 @@ android {
         applicationId "com.dashfitness.app"
         minSdk 21
         targetSdk 33
-        versionCode 9
-        versionName "0.0.9"
+        versionCode 10
+        versionName "0.0.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -78,6 +78,7 @@ dependencies {
     implementation 'androidx.room:room-common:2.4.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.room:room-ktx:2.4.3'
+    implementation 'androidx.preference:preference:1.2.0'
     kapt "androidx.room:room-compiler:2.4.3"
 
     // Navigation

@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.location.Location
 import android.os.Build
 import android.os.Looper
@@ -15,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.ui.main.run.models.RunSegment
@@ -91,7 +93,9 @@ class TrackingService : LifecycleService() {
         var halfwayViaTime = false
         var halfwayValue = 0.0
         var alreadyHalfway = false
-        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech) {
+        lateinit var preferences: SharedPreferences
+        var useMetric: Boolean = false
+        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech, preferences: SharedPreferences) {
             timeRun = 0L
             timeRunInSeconds.value = 0
             timeStarted = 0L
@@ -100,6 +104,7 @@ class TrackingService : LifecycleService() {
             totalSegmentDistance = 0.0
             totalDistance.value = 0.0
             tts = textToSpeech
+            this.preferences = preferences
             if (!segments.isNullOrEmpty()) {
                 segments.let {
                     runSegments = segments
@@ -107,13 +112,17 @@ class TrackingService : LifecycleService() {
             } else {
                 runSegments.add(RunSegment(RunSegmentType.NONE, RunSegmentSpeed.NONE, Float.MAX_VALUE));
             }
-            if (runSegments.all { x -> x.type === RunSegmentType.TIME }) {
-                canGiveHalfwayCue = true
-                halfwayViaTime = true
-                halfwayValue = runSegments.sumOf { x -> x.value.toDouble() } / 2.0
-            } else if (runSegments.all { x -> x.type === RunSegmentType.DISTANCE }) {
-                canGiveHalfwayCue = true
-                halfwayValue = runSegments.sumOf { x -> x.value.toDouble() } / 2.0
+            this.useMetric = this.preferences.getBoolean("metric", false)
+            val enableHalfwayCue = this.preferences.getBoolean("halfway_cue", false)
+            if (enableHalfwayCue) {
+                if (runSegments.all { x -> x.type === RunSegmentType.TIME }) {
+                    canGiveHalfwayCue = true
+                    halfwayViaTime = true
+                    halfwayValue = runSegments.sumOf { x -> x.value.toDouble() } / 2.0
+                } else if (runSegments.all { x -> x.type === RunSegmentType.DISTANCE }) {
+                    canGiveHalfwayCue = true
+                    halfwayValue = runSegments.sumOf { x -> x.value.toDouble() } / 2.0
+                }
             }
         }
     }
@@ -305,7 +314,11 @@ class TrackingService : LifecycleService() {
             if (halfwayViaTime == valueIsTime) {
                 var modifiedCompare = compareValue
                 if (!halfwayViaTime) {
-                    modifiedCompare = compareValue / 1609.344
+                    if (useMetric) {
+                        modifiedCompare = compareValue / 1000.0
+                    } else {
+                        modifiedCompare = compareValue / 1609.344
+                    }
                 }
                 if (halfwayValue <= modifiedCompare) {
                     alreadyHalfway = true
