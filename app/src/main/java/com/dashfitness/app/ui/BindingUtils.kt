@@ -40,7 +40,11 @@ fun MaterialTextView.setDateString(run: RunData) {
 @BindingAdapter("runSegmentText")
 fun MaterialTextView.setText(segment: RunSegment) {
     segment.let {
-        text = "${it.speed} ${it.value} ${if(it.type == RunSegmentType.DISTANCE) "Mile(s)" else "Minute(s)"}"
+        if (it.type === RunSegmentType.ALERT) {
+            text = "\"${it.text}\""
+        } else {
+            text = "${it.speed} ${it.value} ${if(it.type == RunSegmentType.DISTANCE) "Mile(s)" else "Minute(s)"}"
+        }
     }
 }
 
@@ -54,7 +58,9 @@ fun MaterialTextView.setText(run: ITrainingRun) {
 @BindingAdapter("runSegmentIcon")
 fun AppCompatImageView.setSrc(segment: RunSegment) {
     segment.let {
-        if (segment.speed == RunSegmentSpeed.RUN) {
+        if (segment.type == RunSegmentType.ALERT) {
+            setImageResource(R.drawable.baseline_priority_high_24)
+        } else if (segment.speed == RunSegmentSpeed.RUN) {
             setImageResource(R.drawable.ic_directions_run_black_24dp)
         } else {
             setImageResource(R.drawable.ic_baseline_directions_walk_24)

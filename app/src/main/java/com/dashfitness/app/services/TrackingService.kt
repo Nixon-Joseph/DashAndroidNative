@@ -392,6 +392,7 @@ class TrackingService : LifecycleService() {
             totalSegmentDistance = 0.0
             timeRun += lapTime
             timeStarted = System.currentTimeMillis()
+            lapTime = 0L
             currentSegment?.let {
                 if (it.type === RunSegmentType.ALERT) {
                     nextSegment()
