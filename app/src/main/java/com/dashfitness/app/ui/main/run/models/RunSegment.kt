@@ -3,7 +3,7 @@ package com.dashfitness.app.ui.main.run.models
 import java.util.*
 import java.util.UUID.randomUUID
 
-open class RunSegment(val type: RunSegmentType, val speed: RunSegmentSpeed, val value: Float): java.io.Serializable {
+open class RunSegment(val type: RunSegmentType, val speed: RunSegmentSpeed, val value: Float, val text: String? = null, val isCustomText: Boolean = false): java.io.Serializable {
     companion object {
         fun Time(speed: RunSegmentSpeed, value: Float): RunSegment { return RunSegment(RunSegmentType.TIME, speed, value) }
         fun Distance(speed: RunSegmentSpeed, value: Float): RunSegment { return RunSegment(RunSegmentType.DISTANCE, speed, value) }
@@ -13,7 +13,7 @@ open class RunSegment(val type: RunSegmentType, val speed: RunSegmentSpeed, val 
 }
 
 enum class RunSegmentType {
-    TIME, DISTANCE, NONE
+    TIME, DISTANCE, NONE, ALERT
 }
 
 enum class RunSegmentSpeed {

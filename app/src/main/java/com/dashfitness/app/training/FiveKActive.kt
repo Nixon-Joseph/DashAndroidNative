@@ -4,7 +4,6 @@ import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import java.io.Serializable
 
-// Shamelessly pulled from https://marathonhandbook.com
 class FiveKActive: TrainingPlan(
     CODE,
     NAME,
@@ -30,8 +29,7 @@ class FiveKActive: TrainingPlan(
         const val DESCRIPTION: String = "Running 5k – around 3.1 miles – is an excellent measure of your running fitness.\n\n" +
                 "Beginners use the 5 kilometer distance as a goal to reach, while experienced runners use their 5k time as a measure of their running fitness.\n\n" +
                 "This plan is for those who are athletic or more experienced.\n\n" +
-                "If you are a beginner or non/less-active, you might want to consider the \"5K Beginner\" run plan.\n\n" +
-                "Credit: https://marathonhandbook.com - review for more information"
+                "If you are a beginner or non/less-active, you might want to consider the \"5K Beginner\" run plan."
     }
 }
 

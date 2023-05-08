@@ -57,6 +57,20 @@
             app:srcCompat="@drawable/ic_baseline_directions_walk_24"
             android:contentDescription="Walk Icon" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/alertButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="@{() -> viewModel.onAddAlertSegmentClicked()}"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/walkButton"
+            app:layout_constraintEnd_toEndOf="@+id/addSegmentButton"
+            app:srcCompat="@drawable/baseline_priority_high_24"
+            android:contentDescription="Walk Icon" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/continueButton"
             android:backgroundTint="@color/colorPrimaryDark"

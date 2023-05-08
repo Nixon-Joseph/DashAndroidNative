@@ -1,6 +1,7 @@
 package com.dashfitness.app.ui.main.run.setup
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,6 +20,7 @@ import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
 import com.dashfitness.app.ui.main.home.HomeFragmentDirections
 import com.dashfitness.app.ui.main.run.models.RunSegment
+import kotlinx.android.synthetic.main.dialog_add_segment.segmentAmountSlider
 import kotlinx.android.synthetic.main.fragment_run_setup.*
 import java.util.*
 
@@ -62,6 +64,26 @@ class RunSetupFragment : Fragment() {
             customButton.setTextColor(if (it) whiteColor else darkColor)
             binding.runSetupPager.currentItem = if (it) 1 else 0
         }
+        viewModel.isTreadmill.observe(requireActivity()) {
+            outdoor_run_button.setBackgroundColor(if (it) whiteColor else darkColor)
+            outdoor_run_button.setTextColor(if (it) darkColor else whiteColor)
+            treadmill_button.setBackgroundColor(if (it) darkColor else whiteColor)
+            treadmill_button.setTextColor(if (it) whiteColor else darkColor)
+        }
+        viewModel.showTreadmillDistanceSegmentsAlert += {
+            val builder = requireActivity().let { AlertDialog.Builder(it) }
+            builder
+                .setTitle("Remove Distance Segments?")
+                .setMessage("You currently have 'Distance' type segments in your list, these can only be used for 'Outdoor' (GPS tracked) segments.\n\nWould you like to remove these segments and switch over to 'Treadmill' mode?")
+                .setPositiveButton("Remove Segments") { _dialog, _ ->
+                    viewModel.removeDistanceSegments()
+                    viewModel.isTreadmill.postValue(true)
+                    _dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
+            val dialog = builder.create()
+            dialog.show()
+        }
     }
 
     var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -85,6 +107,9 @@ class RunSetupFragment : Fragment() {
                     "segments",
                     viewModel.segments.value?.let { ArrayList(it) }
                         ?: ArrayList<RunSegment>() as java.io.Serializable)
+                intent.putExtra(
+                    "isTreadmill",
+                    viewModel.isTreadmill.value)
                 resultLauncher.launch(intent)
                 viewModel.onRunNavigated()
             }

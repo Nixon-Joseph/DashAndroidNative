@@ -45,6 +45,7 @@ class RunActivity : AppCompatActivity() {
     private lateinit var runStatsFragment: RunStatsFragment
     private lateinit var tts: TextToSpeech
     private lateinit var segments: ArrayList<RunSegment>
+    private var isTreadmill: Boolean = false
     private val trackedRunSegments = ArrayList<TrackedRunSegment>()
     private var bundle: Bundle? = null
     private var isTracking = false
@@ -74,6 +75,7 @@ class RunActivity : AppCompatActivity() {
         tts = TextToSpeech(this) { }
 
         segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
+        isTreadmill = intent.getBooleanExtra("isTreadmill", false)
 
         subscribeToObservers()
 
@@ -103,7 +105,7 @@ class RunActivity : AppCompatActivity() {
             finish()
         }
         viewModel.startRun += {
-            TrackingService.setupRun(segments, tts, preferences)
+            TrackingService.setupRun(segments, tts, isTreadmill, preferences)
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
             viewModel.runState.postValue(RunViewModel.RunStates.Running)
             tts.speak("Lets go!", TextToSpeech.QUEUE_ADD, bundle, UUID.randomUUID().toString())

@@ -19,8 +19,21 @@ import com.dashfitness.app.R
 import com.dashfitness.app.databinding.FragmentRunSetupCustomBinding
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
+import com.google.android.material.textfield.TextInputEditText
 import com.kevincodes.recyclerview.ItemDecorator
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.almostThereButton
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.customAlertText
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.goodJobButton
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.halfwayButton
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.keepGoingButton
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.view.customAlertText
+import kotlinx.android.synthetic.main.dialog_add_alert_segment.view.halfwayButton
+import kotlinx.android.synthetic.main.dialog_add_segment.segmentAmountSlider
+import kotlinx.android.synthetic.main.dialog_add_segment.segmentDistanceButton
+import kotlinx.android.synthetic.main.dialog_add_segment.segmentTimeButton
+import kotlinx.android.synthetic.main.dialog_add_segment.view.segmentAmountSlider
 import kotlinx.android.synthetic.main.fragment_run_setup_custom.*
 import java.util.*
 
@@ -57,9 +70,11 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
         if (!clicked) {
             runButton.visibility = View.VISIBLE
             walkButton.visibility = View.VISIBLE
+            alertButton.visibility = View.VISIBLE
         } else {
             runButton.visibility = View.INVISIBLE
             walkButton.visibility = View.INVISIBLE
+            alertButton.visibility = View.INVISIBLE
         }
     }
 
@@ -67,10 +82,12 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
         if (!clicked) {
             runButton.startAnimation(fromBottom)
             walkButton.startAnimation(fromBottom)
+            alertButton.startAnimation(fromBottom)
             addSegmentButton.startAnimation(rotateOpen)
         } else {
             runButton.startAnimation(toBottom)
             walkButton.startAnimation(toBottom)
+            alertButton.startAnimation(toBottom)
             addSegmentButton.startAnimation(rotateClosed)
         }
     }
@@ -78,6 +95,7 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
     private fun setClickable(clicked: Boolean) {
         runButton.isClickable = !clicked
         walkButton.isClickable = !clicked
+        alertButton.isClickable = !clicked
     }
 
     private fun setupListeners(inflater: LayoutInflater) {
@@ -89,11 +107,20 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
             null,
             null
         ) }
+        viewModel.addRunAlertSegmentClicked += { showAlertSegmentDialog(
+            inflater,
+            null,
+            null
+        ) }
     }
 
     private fun setupSegmentList(inflater: LayoutInflater) {
         val adapter = SegmentSetupAdapter(SegmentSetupListener { segment ->
-            showSegmentDialog(segment.speed, inflater, segment.type, segment.value, segment.id)
+            if (segment.type == RunSegmentType.ALERT) {
+                showAlertSegmentDialog(inflater, segment.text, segment.id)
+            } else {
+                showSegmentDialog(segment.speed, inflater, segment.type, segment.value, segment.id)
+            }
         })
         val simpleCallback = object :
             ItemTouchHelper.SimpleCallback(
@@ -186,8 +213,7 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
             .setTitle(title)
             .setView(view)
             .setPositiveButton("Confirm") { _dialog, _ ->
-                viewModel.addSegment(newSegmentType, segmentSpeed, view.findViewById<Slider>(
-                    R.id.segmentAmountSlider).value)
+                viewModel.addSegment(newSegmentType, segmentSpeed, view.findViewById<Slider>(R.id.segmentAmountSlider).value)
                 _dialog.dismiss()
             }
             .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
@@ -212,9 +238,61 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
             handleSegmentTypeChange(RunSegmentType.TIME, timeButton, distanceButton, view)
             newSegmentType = RunSegmentType.TIME
         }
-        distanceButton.setOnClickListener {
-            handleSegmentTypeChange(RunSegmentType.DISTANCE, timeButton, distanceButton, view)
-            newSegmentType = RunSegmentType.DISTANCE
+        viewModel.isTreadmill.value?.let {
+            if (it) {
+                distanceButton.isEnabled = false
+            } else {
+                distanceButton.setOnClickListener {
+                    handleSegmentTypeChange(RunSegmentType.DISTANCE, timeButton, distanceButton, view)
+                    newSegmentType = RunSegmentType.DISTANCE
+                }
+            }
+        }
+        dialog.show()
+    }
+
+    private fun showAlertSegmentDialog(inflater: LayoutInflater, segmentText: String?, id: UUID?) {
+        val builder = requireActivity().let { AlertDialog.Builder(it) }
+        val view = inflater.inflate(R.layout.dialog_add_alert_segment, null)
+        builder
+            .setTitle("Add Alert")
+            .setView(view)
+            .setPositiveButton("Confirm Custom") { _dialog, _ ->
+                val text = view.findViewById<TextInputEditText>(R.id.customAlertText).text.toString()
+                if (text.isNotEmpty()) {
+                    viewModel.addSegment(RunSegmentType.ALERT, RunSegmentSpeed.NONE, 0f, text, true)
+                    _dialog.dismiss()
+                }
+            }
+            .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
+        id?.let {
+            builder.setPositiveButton("Confirm Custom") { _dialog, _ ->
+                val text = view.findViewById<TextInputEditText>(R.id.customAlertText).text.toString()
+                if (text.isNotEmpty()) {
+                    viewModel.editSegment(it, RunSegmentType.ALERT, RunSegmentSpeed.NONE, 0f, text, true)
+                    _dialog.dismiss()
+                }
+            }
+        }
+        segmentText?.let {
+            view.findViewById<TextInputEditText>(R.id.customAlertText).setText(it);
+        }
+        val dialog = builder.create()
+        view.findViewById<MaterialButton>(R.id.halfwayButton).setOnClickListener {
+            viewModel.addSegment(RunSegmentType.ALERT, RunSegmentSpeed.NONE, 0f, "Halfway There", false)
+            dialog.dismiss()
+        }
+        view.findViewById<MaterialButton>(R.id.goodJobButton).setOnClickListener {
+            viewModel.addSegment(RunSegmentType.ALERT, RunSegmentSpeed.NONE, 0f, "Good Job", false)
+            dialog.dismiss()
+        }
+        view.findViewById<MaterialButton>(R.id.keepGoingButton).setOnClickListener {
+            viewModel.addSegment(RunSegmentType.ALERT, RunSegmentSpeed.NONE, 0f, "Keep Going", false)
+            dialog.dismiss()
+        }
+        view.findViewById<MaterialButton>(R.id.almostThereButton).setOnClickListener {
+            viewModel.addSegment(RunSegmentType.ALERT, RunSegmentSpeed.NONE, 0f, "Almost there", false)
+            dialog.dismiss()
         }
         dialog.show()
     }
@@ -229,16 +307,24 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
                 slider.stepSize = 1f
                 timeButton.setBackgroundColor(darkColor)
                 timeButton.setTextColor(whiteColor)
-                distanceButton.setBackgroundColor(whiteColor)
-                distanceButton.setTextColor(darkColor)
+                viewModel.isTreadmill.value?.let {
+                    if (!it) {
+                        distanceButton.setBackgroundColor(whiteColor)
+                        distanceButton.setTextColor(darkColor)
+                    }
+                }
             }
             else -> {
                 slider.value = 1f
                 slider.valueFrom = 0.25f
                 slider.valueTo = 5f
                 slider.stepSize = 0.25f
-                distanceButton.setBackgroundColor(darkColor)
-                distanceButton.setTextColor(whiteColor)
+                viewModel.isTreadmill.value?.let {
+                    if (!it) {
+                        distanceButton.setBackgroundColor(darkColor)
+                        distanceButton.setTextColor(whiteColor)
+                    }
+                }
                 timeButton.setBackgroundColor(whiteColor)
                 timeButton.setTextColor(darkColor)
             }

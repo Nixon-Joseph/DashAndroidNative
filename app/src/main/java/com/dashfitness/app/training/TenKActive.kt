@@ -5,7 +5,6 @@ import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.util.milesToKilometers
 import java.io.Serializable
 
-// Shamelessly pulled from https://marathonhandbook.com
 class TenKActive: TrainingPlan(
     CODE,
     NAME,
@@ -47,8 +46,7 @@ class TenKActive: TrainingPlan(
         const val DESCRIPTION: String = "The 10k distance – around 6.2 miles – is a classic benchmark for both beginners and experienced runners.\n\n" +
                 "A solid 10k can be an ambitious goal to aim for, a comfortable training run, or a gruelling race distance to runners.\n\n" +
                 "This plan is for those who are athletic or more experienced.\n\n" +
-                "If you are a beginner or non/less-active, you might want to consider the \"10K Beginner\" run plan.\n\n" +
-                "Credit: https://marathonhandbook.com - review for more information"
+                "If you are a beginner or non/less-active, you might want to consider the \"10K Beginner\" run plan."
     }
 }
 

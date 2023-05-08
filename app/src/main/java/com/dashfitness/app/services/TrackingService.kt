@@ -95,7 +95,8 @@ class TrackingService : LifecycleService() {
         var alreadyHalfway = false
         lateinit var preferences: SharedPreferences
         var useMetric: Boolean = false
-        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech, preferences: SharedPreferences) {
+        var isTreadmill: Boolean = false
+        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech, isTreadmill: Boolean, preferences: SharedPreferences) {
             timeRun = 0L
             timeRunInSeconds.value = 0
             timeStarted = 0L
@@ -103,6 +104,7 @@ class TrackingService : LifecycleService() {
             timeElapsedInSegment = 0L
             totalSegmentDistance = 0.0
             totalDistance.value = 0.0
+            this.isTreadmill = isTreadmill
             tts = textToSpeech
             this.preferences = preferences
             if (!segments.isNullOrEmpty()) {
@@ -247,21 +249,23 @@ class TrackingService : LifecycleService() {
     }
 
     private fun updateLocationTracking(isTracking: Boolean) {
-        if(isTracking) {
-            if (TrackingUtility.hasLocationPermissions(this)) {
-                val requestBuilder = com.google.android.gms.location.LocationRequest.Builder(LOCATION_UPDATE_INTERVAL)
-                requestBuilder.apply {
-                    setIntervalMillis(FASTEST_LOCATION_INTERVAL)
-                    setPriority(PRIORITY_HIGH_ACCURACY)
+        if (!isTreadmill) {
+            if(isTracking) {
+                if (TrackingUtility.hasLocationPermissions(this)) {
+                    val requestBuilder = com.google.android.gms.location.LocationRequest.Builder(LOCATION_UPDATE_INTERVAL)
+                    requestBuilder.apply {
+                        setIntervalMillis(FASTEST_LOCATION_INTERVAL)
+                        setPriority(PRIORITY_HIGH_ACCURACY)
+                    }
+                    fusedLocationProviderClient.requestLocationUpdates(
+                        requestBuilder.build(),
+                        locationCallback,
+                        Looper.getMainLooper()
+                    )
                 }
-                fusedLocationProviderClient.requestLocationUpdates(
-                    requestBuilder.build(),
-                    locationCallback,
-                    Looper.getMainLooper()
-                )
+            } else {
+                fusedLocationProviderClient.removeLocationUpdates((locationCallback))
             }
-        } else {
-            fusedLocationProviderClient.removeLocationUpdates((locationCallback))
         }
     }
 
@@ -388,6 +392,11 @@ class TrackingService : LifecycleService() {
             totalSegmentDistance = 0.0
             timeRun += lapTime
             timeStarted = System.currentTimeMillis()
+            currentSegment?.let {
+                if (it.type === RunSegmentType.ALERT) {
+                    nextSegment()
+                }
+            }
             // TODO: speak previous segment info
         } else {
             if (isFirstRun) {
@@ -405,13 +414,18 @@ class TrackingService : LifecycleService() {
 
     private fun speakSegment(segment: RunSegment?) {
         segment?.let {
-            when (it.speed) {
-                RunSegmentSpeed.RUN -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                RunSegmentSpeed.WALK -> tts?.speak("Brisk Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                RunSegmentSpeed.WARM_UP -> tts?.speak("Warm Up!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                RunSegmentSpeed.COOL_DOWN -> tts?.speak("Cool Down!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                RunSegmentSpeed.TEMPO_RUN -> tts?.speak("Tempo Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                RunSegmentSpeed.NONE -> {}
+            when (it.type) {
+                RunSegmentType.ALERT -> tts?.speak(segment.text, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                else -> {
+                    when (it.speed) {
+                        RunSegmentSpeed.RUN -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.WALK -> tts?.speak("Brisk Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.WARM_UP -> tts?.speak("Warm Up!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.COOL_DOWN -> tts?.speak("Cool Down!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.TEMPO_RUN -> tts?.speak("Tempo Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.NONE -> {}
+                    }
+                }
             }
         }
     }
