@@ -34,4 +34,6 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="menu_item_settings">Preferences</string>
+    <string name="run_detail">Run Detail</string>
+    <string name="preferences_title">Preferences</string>
 </resources>

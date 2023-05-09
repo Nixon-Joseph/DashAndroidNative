@@ -29,6 +29,9 @@ interface RunDatabaseDao {
     @Query("SELECT * FROM dash_run_data ORDER BY start_time_milli DESC")
     fun getAllRuns() : LiveData<List<RunData>>
 
+    @Query("SELECT * FROM dash_run_data WHERE id = :runId")
+    fun getRun(runId: Long): LiveData<RunData>
+
     @Query("SELECT * FROM dash_run_segment_data WHERE run_id = :runId ORDER BY start_time_milli DESC")
     fun getRunSegments(runId: Long): LiveData<List<RunSegmentData>>
 

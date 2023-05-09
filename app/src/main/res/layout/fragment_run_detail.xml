@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="viewModel"
             type="com.dashfitness.app.ui.main.run.detail.RunDetailViewModel" />
@@ -52,6 +51,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
+                    app:runTitle="@{viewModel.run}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -75,9 +75,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    app:runDetailDateTimes="@{viewModel.run}"
                     app:layout_constraintStart_toEndOf="@+id/runDetailDateIcon"
                     app:layout_constraintTop_toBottomOf="@+id/runDetailTitle"
-                    tools:text="April 8, 17:20 - 17:56" />
+                    tools:text="April 8, 2023, 17:20 - 17:56" />
 
                 <View
                     android:id="@+id/divider1"
@@ -128,46 +129,47 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/runDetailDistanceLabel"
                     app:layout_constraintTop_toTopOf="@+id/runDetailDistanceLabel"
+                    app:totalDistance="@{viewModel.run}"
                     tools:text="3.05 miles" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/runDetailStepsIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/ic_directions_run_black_24dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/runDetailStepsLabel"
-                    app:layout_constraintEnd_toStartOf="@+id/runDetailStepsLabel"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintHorizontal_chainStyle="spread_inside"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/runDetailStepsLabel" />
+<!--                <androidx.appcompat.widget.AppCompatImageView-->
+<!--                    android:id="@+id/runDetailStepsIcon"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="8dp"-->
+<!--                    android:src="@drawable/ic_directions_run_black_24dp"-->
+<!--                    app:layout_constraintBottom_toBottomOf="@+id/runDetailStepsLabel"-->
+<!--                    app:layout_constraintEnd_toStartOf="@+id/runDetailStepsLabel"-->
+<!--                    app:layout_constraintHorizontal_bias="0.0"-->
+<!--                    app:layout_constraintHorizontal_chainStyle="spread_inside"-->
+<!--                    app:layout_constraintStart_toStartOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="@+id/runDetailStepsLabel" />-->
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/runDetailStepsLabel"
-                    style="@style/TextAppearance.AppCompat.Body2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="Steps"
-                    app:layout_constraintEnd_toStartOf="@+id/runDetailStepsText"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/runDetailStepsIcon"
-                    app:layout_constraintTop_toBottomOf="@+id/runDetailDistanceLabel" />
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    android:id="@+id/runDetailStepsLabel"-->
+<!--                    style="@style/TextAppearance.AppCompat.Body2"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginStart="8dp"-->
+<!--                    android:layout_marginTop="16dp"-->
+<!--                    android:layout_marginEnd="8dp"-->
+<!--                    android:text="Steps"-->
+<!--                    app:layout_constraintEnd_toStartOf="@+id/runDetailStepsText"-->
+<!--                    app:layout_constraintHorizontal_bias="0.5"-->
+<!--                    app:layout_constraintStart_toEndOf="@+id/runDetailStepsIcon"-->
+<!--                    app:layout_constraintTop_toBottomOf="@+id/runDetailDistanceLabel" />-->
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/runDetailStepsText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/runDetailStepsLabel"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/runDetailStepsLabel"
-                    app:layout_constraintTop_toTopOf="@+id/runDetailStepsLabel"
-                    tools:text="5,137" />
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    android:id="@+id/runDetailStepsText"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginEnd="8dp"-->
+<!--                    app:layout_constraintBottom_toBottomOf="@+id/runDetailStepsLabel"-->
+<!--                    app:layout_constraintEnd_toEndOf="parent"-->
+<!--                    app:layout_constraintHorizontal_bias="0.5"-->
+<!--                    app:layout_constraintStart_toEndOf="@+id/runDetailStepsLabel"-->
+<!--                    app:layout_constraintTop_toTopOf="@+id/runDetailStepsLabel"-->
+<!--                    tools:text="5,137" />-->
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/runDetailCaloriesIcon"
@@ -194,13 +196,14 @@
                     app:layout_constraintEnd_toStartOf="@+id/runDetailCaloriesText"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/runDetailCaloriesIcon"
-                    app:layout_constraintTop_toBottomOf="@+id/runDetailStepsLabel" />
+                    app:layout_constraintTop_toBottomOf="@+id/runDetailDistanceText" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/runDetailCaloriesText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    app:caloriesText="@{viewModel.run}"
                     app:layout_constraintBottom_toBottomOf="@+id/runDetailCaloriesLabel"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -245,6 +248,7 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/runDetailElevationLabel"
                     app:layout_constraintTop_toTopOf="@+id/runDetailElevationLabel"
+                    app:totalElevationChange="@{viewModel.runLocs}"
                     tools:text="124 ft" />
 
                 <com.github.mikephil.charting.charts.LineChart

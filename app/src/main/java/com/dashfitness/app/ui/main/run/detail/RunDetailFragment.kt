@@ -10,6 +10,7 @@ import androidx.navigation.fragment.navArgs
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.databinding.FragmentRunDetailBinding
+import com.dashfitness.app.databinding.FragmentRunStatsBinding
 import com.dashfitness.app.util.RunDetailViewModelFactory
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.fragment_run_detail.runDetailDistanceText
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max
@@ -49,6 +51,7 @@ class RunDetailFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentRunDetailBinding.inflate(inflater, container, false)
 
+        binding.lifecycleOwner = activity
         binding.viewModel = viewModel
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.runDetailMapView) as SupportMapFragment
@@ -59,6 +62,10 @@ class RunDetailFragment : Fragment() {
             it.uiSettings.isZoomControlsEnabled = false
             it.uiSettings.setAllGesturesEnabled(false)
             setupMapRoute()
+        }
+
+        viewModel.run.observe(viewLifecycleOwner) {
+            viewModel.totalDistance.postValue(it.totalDistance)
         }
 
         viewModel.runLocs.observe(viewLifecycleOwner) {

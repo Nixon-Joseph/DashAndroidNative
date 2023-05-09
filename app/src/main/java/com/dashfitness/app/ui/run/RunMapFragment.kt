@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,7 @@ import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.dashfitness.app.R
-import com.dashfitness.app.RunViewModel
+import com.dashfitness.app.ui.viewmodels.RunViewModel
 import com.dashfitness.app.databinding.FragmentRunMapBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap

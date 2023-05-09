@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.dashfitness.app.RunViewModel" />
+            type="com.dashfitness.app.ui.viewmodels.RunViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,6 +1,7 @@
 package com.dashfitness.app
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -8,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.dashfitness.app.database.RunData
@@ -22,6 +24,7 @@ import com.dashfitness.app.services.TrackingService
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.run.RunMapFragment
 import com.dashfitness.app.ui.run.RunStatsFragment
+import com.dashfitness.app.ui.viewmodels.RunViewModel
 import com.dashfitness.app.util.Constants.ACTION_PAUSE_SERVICE
 import com.dashfitness.app.util.Constants.ACTION_START_OR_RESUME_SERVICE
 import com.dashfitness.app.util.Constants.ACTION_STOP_SERVICE
@@ -50,6 +53,7 @@ class RunActivity : AppCompatActivity() {
     private var bundle: Bundle? = null
     private var isTracking = false
     private var pathPoints: Polylines = ArrayList()
+    private lateinit var preferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +81,10 @@ class RunActivity : AppCompatActivity() {
         segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
         isTreadmill = intent.getBooleanExtra("isTreadmill", false)
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        viewModel.setupRun(preferences)
+
         subscribeToObservers()
 
         addViewModelEvents()
@@ -99,7 +107,6 @@ class RunActivity : AppCompatActivity() {
             builder.show()
         }
 
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         viewModel.cancelRun += {
             setResult(RESULT_CANCELED)
             finish()
@@ -138,7 +145,10 @@ class RunActivity : AppCompatActivity() {
         }
 
         TrackingService.pathPoints.observe(this) {
-            pathPoints = it
+            // for some reason it sends an empty result at the end, this saves us from that
+            if (it.isNotEmpty()) {
+                pathPoints = it.toMutableList()
+            }
         }
 
         TrackingService.newSegment.observe(this) { it ->
@@ -171,7 +181,15 @@ class RunActivity : AppCompatActivity() {
         sendCommandToService(ACTION_STOP_SERVICE)
         val endTime = System.currentTimeMillis()
         finishCurrentSegment(endTime)
-        saveRun(endTime)
+        val started = TrackingService.timeStarted
+        val distance = TrackingService.totalDistance.value!!
+        val timeRun = TrackingService.timeRunInMillis.value!!
+        val caloriesBurnt = viewModel.estimateCaloriesBurned(distance, timeRun)
+        val runId = coroutineScope { withContext(Dispatchers.IO) { saveRun(endTime, started, distance, timeRun, caloriesBurnt) } }
+        val intent = Intent()
+        intent.putExtra("RunId", runId)
+        setResult(RESULT_OK, intent)
+        finish()
     }
 
     private fun sendCommandToService(action: String) =
@@ -180,52 +198,47 @@ class RunActivity : AppCompatActivity() {
             this.startService(it)
         }
 
-    private suspend fun saveRun(endTime: Long) {
-        coroutineScope {
-            withContext(Dispatchers.IO) {
-                val runId = dataSource.insert(
-                    RunData(
-                        startTimeMilli = TrackingService.timeStarted,
-                        endTimeMilli = endTime,
-                        totalDistance = TrackingService.totalDistance.value!!,
-                        averagePace = calculatePace(TrackingService.timeRun, TrackingService.totalDistance.value!!)
+    private suspend fun saveRun(endTime: Long, timeStarted: Long, totalDistance: Double, timeRun: Long, caloriesBurnt: Int): Long {
+        val runId = dataSource.insert(
+            RunData(
+                startTimeMilli = timeStarted,
+                endTimeMilli = endTime,
+                totalDistance = totalDistance,
+                averagePace = calculatePace(timeRun, totalDistance),
+                calories = caloriesBurnt,
+                title = "Run"
+            )
+        )
+        trackedRunSegments.forEach { trackedRunSegment ->
+            dataSource.insert(
+                RunSegmentData(
+                    runId = runId,
+                    startTimeMilli = trackedRunSegment.startTime,
+                    endTimeMilli = trackedRunSegment.stopTime,
+                    runSpeed = trackedRunSegment.speed,
+                    distance = trackedRunSegment.distance,
+                    pace = calculatePace(trackedRunSegment.stopTime - trackedRunSegment.startTime, trackedRunSegment.distance)
+                )
+            )
+        }
+        val locDataList = ArrayList<RunLocationData>()
+        listOf(pathPoints.forEachIndexed { lineIndex, line: Polyline ->
+            listOf(line.forEachIndexed { locIndex, loc: LatLngAltTime ->
+                locDataList.add(
+                    RunLocationData(
+                        runId = runId,
+                        latitude = loc.latitude,
+                        longitude = loc.longitude,
+                        altitude = loc.altitude,
+                        polylineIndex = lineIndex,
+                        time = loc.time,
+                        index = locIndex
                     )
                 )
-                trackedRunSegments.forEach { trackedRunSegment ->
-                    dataSource.insert(
-                        RunSegmentData(
-                            runId = runId,
-                            startTimeMilli = trackedRunSegment.startTime,
-                            endTimeMilli = trackedRunSegment.stopTime,
-                            runSpeed = trackedRunSegment.speed,
-                            distance = trackedRunSegment.distance,
-                            pace = calculatePace(trackedRunSegment.stopTime - trackedRunSegment.startTime, trackedRunSegment.distance)
-                        )
-                    )
-                }
-                val locDataList = ArrayList<RunLocationData>()
-                listOf(pathPoints.forEachIndexed { lineIndex, line: Polyline ->
-                    listOf(line.forEachIndexed { locIndex, loc: LatLngAltTime ->
-                        locDataList.add(
-                            RunLocationData(
-                                runId = runId,
-                                latitude = loc.latitude,
-                                longitude = loc.longitude,
-                                altitude = loc.altitude,
-                                polylineIndex = lineIndex,
-                                time = loc.time,
-                                index = locIndex
-                            )
-                        )
-                    })
-                })
-                dataSource.insert(locDataList)
-                val intent = Intent()
-                intent.putExtra("RunId", runId)
-                setResult(RESULT_OK, intent)
-                finish()
-            }
-        }
+            })
+        })
+        dataSource.insert(locDataList)
+        return runId
     }
 
     class ViewPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {

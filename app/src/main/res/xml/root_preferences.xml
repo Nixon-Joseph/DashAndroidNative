@@ -40,7 +40,7 @@
 
         <EditTextPreference
             app:key="weight_lbs"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             app:title="Weight In LBS"/>
 
         <EditTextPreference

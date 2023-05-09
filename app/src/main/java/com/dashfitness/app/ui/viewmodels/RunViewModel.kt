@@ -1,10 +1,12 @@
-package com.dashfitness.app
+package com.dashfitness.app.ui.viewmodels
 
+import android.content.SharedPreferences
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.dashfitness.app.services.TrackingService.Companion.preferences
 import com.dashfitness.app.util.*
 
 class RunViewModel : ViewModel() {
@@ -45,7 +47,11 @@ class RunViewModel : ViewModel() {
 
     private var timeElapsed = 0L
     private var totalDistance: Double = 0.0
-    var isMetric: Boolean = false
+    private var isMetric: Boolean = false
+    private var calculateCalories: Boolean = false
+    private var age: Int = 0
+    private var weight: Double = 0.0
+    private var height: Double = 0.0
 
     val startRunVisibility = Transformations.map(runState) {
         when (it) {
@@ -99,8 +105,40 @@ class RunViewModel : ViewModel() {
         _totalDistanceString.postValue(String.format("%.1f", totalDistance))
         val averagePace = calculatePace(timeElapsed, totalDistance)
         _averagePaceString.postValue(if (averagePace > 0) convertLongToTimeString(averagePace) else "∞")
-        val caloriesBurnt = ((timeElapsed.toDouble() / MILLIS_IN_SECOND / SECONDS_IN_MINUTE) * (2.5 * 1.3)).toInt()
-        _caloriesBurntString.postValue(caloriesBurnt.toString())
+        if (calculateCalories) {
+            val caloriesBurnt = estimateCaloriesBurned(totalDistanceInMeters, timeElapsed)
+            _caloriesBurntString.postValue(caloriesBurnt.toString())
+        }
+    }
+
+    fun estimateCaloriesBurned(
+        distance: Double,
+        timeSpent: Long // in milliseconds
+    ): Int {
+        // Convert weight and height to metric units if needed
+        val weightKg = if (isMetric) weight else weight * 0.453592
+        val heightCm = if (isMetric) height else height * 2.54
+
+        // Calculate speed in m/s
+        val timeSpentSeconds = timeSpent / 1000.0
+        val speed = distance / timeSpentSeconds
+
+        // Calculate the approximate MET value based on running speed
+        val met = when {
+            speed < 1.341 -> 6.0 // walking
+            speed < 2.682 -> 9.8 // jogging
+            else -> 11.8 // running
+        }
+
+        // Calculate the Basal Metabolic Rate (BMR) using the Mifflin-St Jeor equation
+        val bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + 5
+
+        // Calculate calories burned
+        val caloriesBurnedPerMinute = bmr / 24 / 60 * met
+        val timeSpentMinutes = timeSpentSeconds / 60.0
+        val totalCaloriesBurned = caloriesBurnedPerMinute * timeSpentMinutes
+
+        return totalCaloriesBurned.toInt()
     }
 
     fun updateElevationChange(elevation: Double) {
@@ -124,6 +162,36 @@ class RunViewModel : ViewModel() {
 
     fun onStartClicked() {
         onStartRun.invoke(true)
+    }
+
+    fun setupRun(preferences: SharedPreferences) {
+        isMetric = preferences.getBoolean("metric", false)
+        calculateCalories = preferences.getBoolean("estimate_calories", false)
+        if (calculateCalories) {
+            preferences.getString("age", "0")?.let {
+                age = it.toInt()
+            }
+            if (isMetric) {
+                preferences.getString("weight_kilo", "0.0")?.let {
+                    weight = it.toDouble()
+                }
+                preferences.getString("height_cm", "0.0")?.let {
+                    height = it.toDouble()
+                }
+            } else {
+                preferences.getString("weight_lbs", "0.0")?.let {
+                    weight = it.toDouble()
+                }
+                preferences.getString("height_feet", "0.0")?.let {ft ->
+                    preferences.getString("height_inches", "0.0")?.let {inch ->
+                        height = ft.toDouble() * 12.0 + inch.toDouble()
+                    }
+                }
+            }
+            if (weight == 0.0 || height == 0.0 || age == 0) {
+                calculateCalories = false
+            }
+        }
     }
 
     enum class RunStates {

@@ -69,17 +69,18 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         binding.navigationView.setupWithNavController(navController);
 
-        navController.addOnDestinationChangedListener { _, destination: NavDestination, _ ->
-            val toolbar = supportActionBar ?: return@addOnDestinationChangedListener;
-            when (destination.id) {
-                R.id.home -> {
-                    toolbar.setDisplayShowTitleEnabled(false)
-                }
-                else -> {
-                    toolbar.setDisplayShowTitleEnabled(true)
-                }
-            }
-        }
+//        navController.addOnDestinationChangedListener { _, destination: NavDestination, _ ->
+//            val toolbar = supportActionBar ?: return@addOnDestinationChangedListener;
+//            when (destination.id) {
+//                R.id.home -> {
+////                    toolbar.title = "Home"
+////                    toolbar.setDisplayShowTitleEnabled(false)
+//                }
+//                else -> {
+////                    toolbar.setDisplayShowTitleEnabled(true)
+//                }
+//            }
+//        }
     }
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) { }

@@ -15,5 +15,9 @@ class RunData(
     @ColumnInfo(name = "total_distance")
     val totalDistance: Double,
     @ColumnInfo(name = "average_pace")
-    val averagePace: Long
+    val averagePace: Long,
+    @ColumnInfo(name = "calories", defaultValue = "0")
+    val calories: Int,
+    @ColumnInfo(name = "title", defaultValue = "Run")
+    val title: String
 )
