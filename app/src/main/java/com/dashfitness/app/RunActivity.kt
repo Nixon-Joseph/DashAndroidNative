@@ -5,11 +5,11 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.dashfitness.app.database.RunData
@@ -31,7 +31,6 @@ import com.dashfitness.app.util.Constants.ACTION_STOP_SERVICE
 import com.dashfitness.app.util.calculatePace
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
@@ -61,6 +60,7 @@ class RunActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_run)
 
         binding.lifecycleOwner = this
+        val toolbar = Toolbar(this)
         setSupportActionBar(toolbar)
 
         viewModel = ViewModelProvider(this)[RunViewModel::class.java]
@@ -97,11 +97,11 @@ class RunActivity : AppCompatActivity() {
             builder.setTitle("Are you sure?")
             builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
             builder.setPositiveButton("End Run") { _, _ ->
-                GlobalScope.async {
+                GlobalScope.launch {
                     stopRun()
                 }
             }
-            builder.setNegativeButton(android.R.string.no) { _, _ ->
+            builder.setNegativeButton(android.R.string.cancel) { _, _ ->
                 sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
             }
             builder.show()
@@ -153,7 +153,7 @@ class RunActivity : AppCompatActivity() {
 
         TrackingService.newSegment.observe(this) { it ->
             if (it == null) {
-                GlobalScope.async {
+                GlobalScope.launch {
                     stopRun()
                 }
             } else {

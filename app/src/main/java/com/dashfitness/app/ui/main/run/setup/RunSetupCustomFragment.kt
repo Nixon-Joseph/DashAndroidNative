@@ -23,18 +23,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import com.kevincodes.recyclerview.ItemDecorator
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.almostThereButton
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.customAlertText
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.goodJobButton
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.halfwayButton
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.keepGoingButton
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.view.customAlertText
-import kotlinx.android.synthetic.main.dialog_add_alert_segment.view.halfwayButton
-import kotlinx.android.synthetic.main.dialog_add_segment.segmentAmountSlider
-import kotlinx.android.synthetic.main.dialog_add_segment.segmentDistanceButton
-import kotlinx.android.synthetic.main.dialog_add_segment.segmentTimeButton
-import kotlinx.android.synthetic.main.dialog_add_segment.view.segmentAmountSlider
-import kotlinx.android.synthetic.main.fragment_run_setup_custom.*
 import java.util.*
 
 class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragment() {
@@ -42,8 +30,8 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var newSegmentType: RunSegmentType = RunSegmentType.TIME
-    private var whiteColor: Int = R.color.white
-    private var darkColor: Int = R.color.colorPrimaryDark
+    private var whiteColor: Int = 0
+    private var darkColor: Int = 0
     private val rotateOpen: Animation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_open_anim) }
     private val rotateClosed: Animation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.rotate_close_anim) }
     private val fromBottom: Animation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.from_bottom_anim) }
@@ -52,13 +40,13 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentRunSetupCustomBinding.inflate(inflater)
         binding.lifecycleOwner = activity
         binding.viewModel = viewModel
         linearLayoutManager = LinearLayoutManager(requireActivity())
-        whiteColor = ResourcesCompat.getColor(resources, R.color.white, null)
-        darkColor = ResourcesCompat.getColor(resources, R.color.colorPrimaryDark, null)
+        whiteColor = resources.getColor(R.color.white, null)
+        darkColor = resources.getColor(R.color.colorPrimaryDark, null)
         binding.segmentList.layoutManager = linearLayoutManager
         setupSegmentList(inflater)
         setupListeners(inflater)
@@ -68,34 +56,34 @@ class RunSetupCustomFragment(private val viewModel: RunSetupViewModel) : Fragmen
 
     private fun setVisibility(clicked: Boolean) {
         if (!clicked) {
-            runButton.visibility = View.VISIBLE
-            walkButton.visibility = View.VISIBLE
-            alertButton.visibility = View.VISIBLE
+            binding.runButton.visibility = View.VISIBLE
+            binding.walkButton.visibility = View.VISIBLE
+            binding.alertButton.visibility = View.VISIBLE
         } else {
-            runButton.visibility = View.INVISIBLE
-            walkButton.visibility = View.INVISIBLE
-            alertButton.visibility = View.INVISIBLE
+            binding.runButton.visibility = View.INVISIBLE
+            binding.walkButton.visibility = View.INVISIBLE
+            binding.alertButton.visibility = View.INVISIBLE
         }
     }
 
     private fun setAnimation(clicked: Boolean) {
         if (!clicked) {
-            runButton.startAnimation(fromBottom)
-            walkButton.startAnimation(fromBottom)
-            alertButton.startAnimation(fromBottom)
-            addSegmentButton.startAnimation(rotateOpen)
+            binding.runButton.startAnimation(fromBottom)
+            binding.walkButton.startAnimation(fromBottom)
+            binding.alertButton.startAnimation(fromBottom)
+            binding.addSegmentButton.startAnimation(rotateOpen)
         } else {
-            runButton.startAnimation(toBottom)
-            walkButton.startAnimation(toBottom)
-            alertButton.startAnimation(toBottom)
-            addSegmentButton.startAnimation(rotateClosed)
+            binding.runButton.startAnimation(toBottom)
+            binding.walkButton.startAnimation(toBottom)
+            binding.alertButton.startAnimation(toBottom)
+            binding.addSegmentButton.startAnimation(rotateClosed)
         }
     }
 
     private fun setClickable(clicked: Boolean) {
-        runButton.isClickable = !clicked
-        walkButton.isClickable = !clicked
-        alertButton.isClickable = !clicked
+        binding.runButton.isClickable = !clicked
+        binding.walkButton.isClickable = !clicked
+        binding.alertButton.isClickable = !clicked
     }
 
     private fun setupListeners(inflater: LayoutInflater) {

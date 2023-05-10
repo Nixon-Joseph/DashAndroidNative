@@ -4,9 +4,8 @@ import android.content.SharedPreferences
 import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import com.dashfitness.app.services.TrackingService.Companion.preferences
+import androidx.lifecycle.map
 import com.dashfitness.app.util.*
 
 class RunViewModel : ViewModel() {
@@ -53,31 +52,31 @@ class RunViewModel : ViewModel() {
     private var weight: Double = 0.0
     private var height: Double = 0.0
 
-    val startRunVisibility = Transformations.map(runState) {
+    val startRunVisibility = runState.map {
         when (it) {
             RunStates.Unstarted -> View.VISIBLE
             else -> View.GONE
         }
     }
-    val restartRunVisibility = Transformations.map(runState) {
+    val restartRunVisibility = runState.map {
         when (it) {
             RunStates.Paused -> View.VISIBLE
             else -> View.GONE
         }
     }
-    val cancelRunVisibility = Transformations.map(runState) {
+    val cancelRunVisibility = runState.map {
         when (it) {
             RunStates.Unstarted -> View.VISIBLE
             else -> View.GONE
         }
     }
-    val endRunVisibility = Transformations.map(runState) {
+    val endRunVisibility = runState.map {
         when (it) {
             RunStates.Paused, RunStates.Finished -> View.VISIBLE
             else -> View.GONE
         }
     }
-    val pauseRunVisibility = Transformations.map(runState) {
+    val pauseRunVisibility = runState.map {
         when (it) {
             RunStates.Running -> View.VISIBLE
             else -> View.GONE

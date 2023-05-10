@@ -1,17 +1,16 @@
 package com.dashfitness.app.ui.main.run.setup
 
-import android.app.AlertDialog
-import android.text.BoringLayout
-import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.dashfitness.app.services.TrackingService.Companion.runSegments
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.Event
 import com.dashfitness.app.util.EventHandler
 import java.util.*
+import kotlin.collections.ArrayList
 
 class RunSetupViewModel : ViewModel() {
     private var clicked = false
@@ -25,16 +24,23 @@ class RunSetupViewModel : ViewModel() {
 
     val segments: MutableLiveData<MutableList<RunSegment>> = MutableLiveData()
 
-    private val _navigateToRunActivity= MutableLiveData<Boolean>()
-    val navigateToRunActivity: LiveData<Boolean>
-        get() = _navigateToRunActivity
+    private val _triggerCustomRunActivity= MutableLiveData<Boolean>()
+    val triggerCustomRunActivity: LiveData<Boolean>
+        get() = _triggerCustomRunActivity
 
-    fun onRunClick() {
-        _navigateToRunActivity.value = true
+    fun onCustomRunContinueClick() {
+        _triggerCustomRunActivity.value = true
     }
 
-    fun onRunNavigated() {
-        _navigateToRunActivity.value = false
+    fun onCustomRunNavigated() {
+        _triggerCustomRunActivity.value = false
+    }
+
+    private val _launchRunActivity= EventHandler<ArrayList<RunSegment>>()
+    val launchRunActivityEvent = Event(_launchRunActivity)
+
+    fun launchRunActivity(runSegments: ArrayList<RunSegment>) {
+        _launchRunActivity.invoke(runSegments)
     }
 
     private val onAddSegment = EventHandler<Boolean>()

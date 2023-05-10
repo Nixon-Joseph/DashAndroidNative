@@ -6,17 +6,20 @@ import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
 @HiltAndroidApp
-class BaseApplication : Application() {
+class DashApp : Application() {
     companion object {
-        lateinit private var context: Context
         fun getAppContext(): Context {
-            return context
+            return AppContextHolder.applicationContext
+        }
+
+        fun getString(id: Int, vararg formatArgs: Any): String {
+            return getAppContext().getString(id, *formatArgs)
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-        context = applicationContext
+        AppContextHolder.init(applicationContext)
         Timber.plant(Timber.DebugTree())
     }
 }

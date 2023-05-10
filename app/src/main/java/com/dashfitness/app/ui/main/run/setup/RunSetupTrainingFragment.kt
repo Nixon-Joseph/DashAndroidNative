@@ -5,16 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.dashfitness.app.databinding.FragmentRunSetupTrainingBinding
-import com.dashfitness.app.training.FiveKActive
-import com.dashfitness.app.training.FiveKBeginner
-import com.dashfitness.app.training.TenKActive
-import com.dashfitness.app.training.TenKBeginner
-import java.util.ArrayList
 
 class RunSetupTrainingFragment(private val viewModel: RunSetupViewModel) : Fragment() {
     private lateinit var binding: FragmentRunSetupTrainingBinding
@@ -27,20 +19,20 @@ class RunSetupTrainingFragment(private val viewModel: RunSetupViewModel) : Fragm
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-        val adapter = ViewPageAdapter(TrainingPlans.length(), this)
+        val adapter = ViewPageAdapter(TrainingPlans.length(), this, viewModel)
 
         binding.trainingPlanPager.adapter = adapter
 
         return binding.root
     }
 
-    class ViewPageAdapter(private val numPages: Int, fragment: Fragment) : FragmentStateAdapter(fragment) {
+    class ViewPageAdapter(private val numPages: Int, fragment: Fragment, private val viewModel: RunSetupViewModel) : FragmentStateAdapter(fragment) {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                TrainingPlans.FIVE_K_BEGINNER.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.FIVE_K_BEGINNER)
-                TrainingPlans.FIVE_K_ACTIVE.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.FIVE_K_ACTIVE)
-                TrainingPlans.TEN_K_BEGINNER.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.TEN_K_BEGINNER)
-                TrainingPlans.TEN_K_ACTIVE.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.TEN_K_ACTIVE)
+                TrainingPlans.FIVE_K_BEGINNER.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.FIVE_K_BEGINNER, viewModel)
+                TrainingPlans.FIVE_K_ACTIVE.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.FIVE_K_ACTIVE, viewModel)
+                TrainingPlans.TEN_K_BEGINNER.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.TEN_K_BEGINNER, viewModel)
+                TrainingPlans.TEN_K_ACTIVE.value -> RunSetupTrainingPlanFragment.newInstance(TrainingPlans.TEN_K_ACTIVE, viewModel)
                 else -> throw Exception("Out of range")
             }
         }

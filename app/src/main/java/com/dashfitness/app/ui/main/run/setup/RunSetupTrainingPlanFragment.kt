@@ -1,5 +1,6 @@
 package com.dashfitness.app.ui.main.run.setup
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
@@ -10,23 +11,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import androidx.databinding.DataBindingUtil
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dashfitness.app.R
-import com.dashfitness.app.RunActivity
-import com.dashfitness.app.databinding.FragmentRunSetupTrainingBinding
 import com.dashfitness.app.databinding.FragmentRunSetupTrainingPlanBinding
 import com.dashfitness.app.training.*
-import com.dashfitness.app.ui.main.run.models.RunSegment
-import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
-import com.dashfitness.app.ui.main.run.models.RunSegmentType
-import com.google.android.material.slider.Slider
+import com.dashfitness.app.ui.main.home.HomeFragmentDirections
 import com.google.android.material.textview.MaterialTextView
-import java.util.*
 
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PLAN = "plan"
@@ -35,7 +30,7 @@ private const val ARG_PLAN = "plan"
  * Use the [RunSetupTrainingPlanFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class RunSetupTrainingPlanFragment : Fragment() {
+class RunSetupTrainingPlanFragment(private val parentViewModel: RunSetupViewModel? = null) : Fragment() {
     lateinit var binding: FragmentRunSetupTrainingPlanBinding
     private val viewModel: RunSetupPlanViewModel by viewModels()
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -55,7 +50,7 @@ class RunSetupTrainingPlanFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentRunSetupTrainingPlanBinding.inflate(inflater)
         linearLayoutManager = LinearLayoutManager(requireActivity())
         binding.viewModel = viewModel
@@ -92,9 +87,7 @@ class RunSetupTrainingPlanFragment : Fragment() {
             .setTitle("${plan?.Name} - ${run.Name}")
             .setView(view)
             .setPositiveButton("Start Run") { _dialog, _ ->
-                val intent = Intent(activity, RunActivity::class.java)
-                intent.putExtra("segments", run.getRunSegments())
-                startActivity(intent)
+                parentViewModel?.launchRunActivity(run.getRunSegments())
                 _dialog.dismiss()
             }
             .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
@@ -103,12 +96,12 @@ class RunSetupTrainingPlanFragment : Fragment() {
         dialog.show()
     }
 
-    private fun showRunSummaryDialog(run: TrainingPlan/*, inflater: LayoutInflater*/) {
+    private fun showRunSummaryDialog(plan: TrainingPlan/*, inflater: LayoutInflater*/) {
         val builder = requireActivity().let { AlertDialog.Builder(it) }
 //        val view = inflater.inflate(R.layout.dialog_select_training_run, null)
         builder
-            .setTitle("${plan?.Name}")
-            .setMessage(Html.fromHtml(plan?.Description, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL))
+            .setTitle(plan.Name)
+            .setMessage(Html.fromHtml(plan.Description, Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL))
 //            .setView(view)
             .setPositiveButton("marathonhandbook.com") { _dialog, _ ->
                 val webpage: Uri = Uri.parse("https://marathonhandbook.com")
@@ -132,8 +125,8 @@ class RunSetupTrainingPlanFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(plan: TrainingPlans) =
-            RunSetupTrainingPlanFragment().apply {
+        fun newInstance(plan: TrainingPlans, viewModel: RunSetupViewModel) =
+            RunSetupTrainingPlanFragment(viewModel).apply {
                 arguments = Bundle().apply {
                     putSerializable(ARG_PLAN, getPlan(plan))
                 }

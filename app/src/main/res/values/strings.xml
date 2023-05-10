@@ -18,22 +18,40 @@
     <string name="run_setup_custom_button_text">Custom</string>
     <string name="no_segments_selected_text">No segments selected. You can add segments with the + button below. Or click "CONTINUE" to proceed without segments</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- Preference Titles -->
     <string name="general_header">General</string>
     <string name="calorie_header">Calories</string>
 
     <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
 
     <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="menu_item_settings">Preferences</string>
     <string name="run_detail">Run Detail</string>
     <string name="preferences_title">Preferences</string>
+    <string name="timeElapsedString">Run Time: %1$s</string>
+    <string name="totalDistanceStringM">Distance: %1$.1f Kilometers</string>
+    <string name="totalDistanceStringImp">Distance: %1$.1f Miles</string>
+    <string name="totalDistanceM">%1$.1f Miles</string>
+    <string name="totalDistanceImp">%1$.1f Miles</string>
+    <string name="dateString">Date: %1$s</string>
+    <string name="runSegmentText">%1$s %2$s %3$s(s)</string>
+    <string name="totalElevationChange">%1.1f %2$s</string>
+    <string name="runDetailDateTimes">%1$s - %2$s</string>
+    <string name="halfway_there">Halfway there</string>
+    <string name="time">Time</string>
+    <string name="distance">Distance</string>
+    <string name="outdoor">Outdoor</string>
+    <string name="plus_icon">Plus Icon</string>
+    <string name="good_job">Good Job</string>
+    <string name="almost_there">Almost There</string>
+    <string name="keep_going">Keep Going</string>
+    <string name="custom_message">Custom Message</string>
+    <string name="calories">Calories</string>
+    <string name="elevation">Elevation</string>
+    <string name="treadmill">Treadmill</string>
+    <string name="run_icon">Run Icon</string>
+    <string name="walk_icon">Walk Icon</string>
+    <string name="alert_icon">Alert Icon</string>
+    <string name="segments">Segments</string>
+    <string name="more_information">More Information</string>
 </resources>

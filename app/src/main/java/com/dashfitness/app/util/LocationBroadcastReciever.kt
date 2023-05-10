@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.util.Log
+import timber.log.Timber
 
 class LocationBroadcastReceiver: BroadcastReceiver() {
     private val onLocationReceived = EventHandler<Location?>()
@@ -16,7 +17,7 @@ class LocationBroadcastReceiver: BroadcastReceiver() {
             "LOCATION_CHANGED" -> {
                 val loc = intent.getParcelableExtra("LOCATION_DATA") as Location?
                 loc?.let {
-                    Log.i("locationReceived_3", "lat: ${loc.latitude}, lon: ${loc.longitude}, accuracy: ${loc.accuracy}, totalCount: ${locs.count()}")
+                    Timber.i("lat: ${loc.latitude}, lon: ${loc.longitude}, accuracy: ${loc.accuracy}, totalCount: ${locs.count()}")
                     onLocationReceived(loc)
                     locs.add(loc)
                 }

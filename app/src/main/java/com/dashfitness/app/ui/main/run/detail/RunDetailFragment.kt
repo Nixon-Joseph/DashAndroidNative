@@ -22,7 +22,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.PolylineOptions
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_run_detail.runDetailDistanceText
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.math.max

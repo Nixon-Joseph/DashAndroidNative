@@ -8,28 +8,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.res.ResourcesCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.dashfitness.app.MainActivity
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
 import com.dashfitness.app.ui.main.home.HomeFragmentDirections
 import com.dashfitness.app.ui.main.run.models.RunSegment
-import kotlinx.android.synthetic.main.dialog_add_segment.segmentAmountSlider
-import kotlinx.android.synthetic.main.fragment_run_setup.*
 import java.util.*
 
 
 class RunSetupFragment : Fragment() {
     private lateinit var binding: FragmentRunSetupBinding
     private lateinit var viewModel: RunSetupViewModel
-    private var whiteColor: Int = R.color.white
-    private var darkColor: Int = R.color.colorPrimaryDark
+    private var whiteColor: Int = 0
+    private var darkColor: Int = 0
     private lateinit var runSetupCustomFragment: RunSetupCustomFragment
     private lateinit var runSetupTrainingFragment: RunSetupTrainingFragment
 
@@ -40,8 +36,8 @@ class RunSetupFragment : Fragment() {
         binding = FragmentRunSetupBinding.inflate(inflater)
         viewModel = ViewModelProvider(this)[RunSetupViewModel::class.java]
         binding.viewModel = viewModel
-        whiteColor = getColor(resources, R.color.white, null)
-        darkColor = getColor(resources, R.color.colorPrimaryDark, null)
+        whiteColor = resources.getColor(R.color.white, null)
+        darkColor = resources.getColor(R.color.colorPrimaryDark, null)
         setupListeners()
 
         runSetupCustomFragment = RunSetupCustomFragment(viewModel)
@@ -58,17 +54,17 @@ class RunSetupFragment : Fragment() {
 
     private fun setupListeners() {
         viewModel.isCustom.observe(requireActivity()) {
-            trainingButton.setBackgroundColor(if (it) whiteColor else darkColor)
-            trainingButton.setTextColor(if (it) darkColor else whiteColor)
-            customButton.setBackgroundColor(if (it) darkColor else whiteColor)
-            customButton.setTextColor(if (it) whiteColor else darkColor)
+            binding.trainingButton.setBackgroundColor(if (it) whiteColor else darkColor)
+            binding.trainingButton.setTextColor(if (it) darkColor else whiteColor)
+            binding.customButton.setBackgroundColor(if (it) darkColor else whiteColor)
+            binding.customButton.setTextColor(if (it) whiteColor else darkColor)
             binding.runSetupPager.currentItem = if (it) 1 else 0
         }
         viewModel.isTreadmill.observe(requireActivity()) {
-            outdoor_run_button.setBackgroundColor(if (it) whiteColor else darkColor)
-            outdoor_run_button.setTextColor(if (it) darkColor else whiteColor)
-            treadmill_button.setBackgroundColor(if (it) darkColor else whiteColor)
-            treadmill_button.setTextColor(if (it) whiteColor else darkColor)
+            binding.outdoorRunButton.setBackgroundColor(if (it) whiteColor else darkColor)
+            binding.outdoorRunButton.setTextColor(if (it) darkColor else whiteColor)
+            binding.treadmillButton.setBackgroundColor(if (it) darkColor else whiteColor)
+            binding.treadmillButton.setTextColor(if (it) whiteColor else darkColor)
         }
         viewModel.showTreadmillDistanceSegmentsAlert += {
             val builder = requireActivity().let { AlertDialog.Builder(it) }
@@ -83,6 +79,16 @@ class RunSetupFragment : Fragment() {
                 .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
             val dialog = builder.create()
             dialog.show()
+        }
+        viewModel.launchRunActivityEvent += {
+            val intent = Intent(activity, RunActivity::class.java)
+            intent.putExtra(
+                "segments",
+                it as java.io.Serializable)
+            intent.putExtra(
+                "isTreadmill",
+                viewModel.isTreadmill.value)
+            resultLauncher.launch(intent)
         }
     }
 
@@ -100,18 +106,10 @@ class RunSetupFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[RunSetupViewModel::class.java]
 
-        viewModel.navigateToRunActivity.observe(viewLifecycleOwner) { navigate ->
+        viewModel.triggerCustomRunActivity.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
-                val intent = Intent(activity, RunActivity::class.java)
-                intent.putExtra(
-                    "segments",
-                    viewModel.segments.value?.let { ArrayList(it) }
-                        ?: ArrayList<RunSegment>() as java.io.Serializable)
-                intent.putExtra(
-                    "isTreadmill",
-                    viewModel.isTreadmill.value)
-                resultLauncher.launch(intent)
-                viewModel.onRunNavigated()
+                viewModel.onCustomRunNavigated()
+                viewModel.launchRunActivity(viewModel.segments.value?.let { ArrayList(it) } ?: ArrayList<RunSegment>())
             }
         }
 
