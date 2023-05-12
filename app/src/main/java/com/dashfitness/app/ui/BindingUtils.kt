@@ -16,7 +16,6 @@ import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
 import com.dashfitness.app.util.convertLongToTimeString
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,7 +31,7 @@ fun MaterialTextView.setTimeElapsedString(run: RunData) {
 fun MaterialTextView.setTotalDistanceString(run: RunData?) {
     run?.let {
         val preferences = PreferenceManager.getDefaultSharedPreferences(DashApp.getAppContext())
-        text = if (preferences.getBoolean("metric", false)) {
+        text = if (preferences.getBoolean(DashApp.getString(R.string.metric_preference), false)) {
             DashApp.getString(R.string.totalDistanceStringM, run.totalDistance / 1000.0)
         } else {
             DashApp.getString(R.string.totalDistanceStringImp, run.totalDistance / 1609.344)
@@ -51,7 +50,7 @@ fun MaterialTextView.setCaloriesText(run: RunData?) {
 fun MaterialTextView.setTotalDistance(run: RunData?) {
     run?.let {
         val preferences = PreferenceManager.getDefaultSharedPreferences(DashApp.getAppContext())
-        text = if (preferences.getBoolean("metric", false)) {
+        text = if (preferences.getBoolean(DashApp.getString(R.string.metric_preference), false)) {
             DashApp.getString(R.string.totalDistanceM, run.totalDistance / 1000.0)
         } else {
             DashApp.getString(R.string.totalDistanceImp, run.totalDistance / 1609.344)
@@ -73,8 +72,16 @@ fun MaterialTextView.setText(segment: RunSegment) {
             "\"${it.text}\""
         } else {
             val preferences = PreferenceManager.getDefaultSharedPreferences(DashApp.getAppContext())
-            val distanceUnit = if (preferences.getBoolean("metric", false)) "Kilometer" else "Mile"
-            DashApp.getString(R.string.runSegmentText, it.speed, it.value, if(it.type == RunSegmentType.DISTANCE) "${distanceUnit}(s)" else "Minute(s)")
+            val distanceUnit = if (it.type == RunSegmentType.DISTANCE) {
+                if (preferences.getBoolean(DashApp.getString(R.string.metric_preference), false)) {
+                    "Kilometer"
+                } else {
+                    "Mile"
+                }
+            } else {
+                "Minute"
+            }
+            DashApp.getString(R.string.runSegmentText, it.speed, it.value, distanceUnit)
         }
     }
 }
@@ -104,7 +111,7 @@ fun MaterialTextView.setText(runLocs: List<RunLocationData>?) {
         }
         val preferences = PreferenceManager.getDefaultSharedPreferences(DashApp.getAppContext())
         var uom = "M"
-        if (!preferences.getBoolean("metric", false)) { // convert to feet
+        if (!preferences.getBoolean(DashApp.getString(R.string.metric_preference), false)) { // convert to feet
             max /= 3.28084
             min /= 3.28084
             uom = "Ft"

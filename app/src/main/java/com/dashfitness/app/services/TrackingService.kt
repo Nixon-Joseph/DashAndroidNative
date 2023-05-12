@@ -12,14 +12,13 @@ import android.location.Location
 import android.os.Build
 import android.os.Looper
 import android.speech.tts.TextToSpeech
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.preference.PreferenceManager
+import com.dashfitness.app.DashApp
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunLocationData
 import com.dashfitness.app.ui.main.run.models.RunSegment
@@ -48,7 +47,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -61,9 +59,6 @@ typealias Polylines = MutableList<Polyline>
 
 @AndroidEntryPoint
 class TrackingService : LifecycleService() {
-    var isFirstRun = true
-    var serviceKilled = false
-
     @Inject
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -73,33 +68,48 @@ class TrackingService : LifecycleService() {
     lateinit var curNotification: NotificationCompat.Builder
 
     companion object {
-        var runSegments = ArrayList<RunSegment>()
-        val timeRunInMillis = MutableLiveData<Long>()
-        val isTracking = MutableLiveData<Boolean>()
-        val pathPoints = MutableLiveData<Polylines>()
-        val totalDistance = MutableLiveData<Double>()
-        val totalElevationChange = MutableLiveData<Double>()
-        var currentSegmentIndex = -1
-        val currentSegment: RunSegment?
-            get() = if (currentSegmentIndex >= 0) { runSegments[currentSegmentIndex] } else { null }
-        private var hasSegments: Boolean = true
+        var timeRunInMillis = MutableLiveData<Long>()
+        var totalDistance = MutableLiveData<Double>()
+        var totalElevationChange = MutableLiveData<Double>()
         var timeElapsedInSegment = 0L
         var totalSegmentDistance = 0.0
-        val newSegment = MutableLiveData<RunSegment?>()
-        var isMetric: Boolean = false
+        var newSegment = MutableLiveData<RunSegment?>()
         var timeStarted = 0L
         var timeRun = 0L
-        val runLocations = ArrayList<Location>()
-        var tts: TextToSpeech? = null
-        val timeRunInSeconds = MutableLiveData<Long>()
-        var canGiveHalfwayCue = false
-        var halfwayViaTime = false
-        var halfwayValue = 0.0
-        var alreadyHalfway = false
-        lateinit var preferences: SharedPreferences
-        var useMetric: Boolean = false
-        var isTreadmill: Boolean = false
-        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech, isTreadmill: Boolean, preferences: SharedPreferences) {
+        var runLocations = ArrayList<Location>()
+        var timeRunInSeconds = MutableLiveData<Long>()
+        var isTracking = MutableLiveData<Boolean>()
+        var pathPoints = MutableLiveData<Polylines>()
+        var runSegments = ArrayList<RunSegment>()
+        private var isFirstRun = true
+        private var serviceKilled = false
+        private var currentSegmentIndex = -1
+        private val currentSegment: RunSegment?
+            get() = if (currentSegmentIndex >= 0) { runSegments[currentSegmentIndex] } else { null }
+        private var hasSegments: Boolean = true
+        private var isMetric: Boolean = false
+        private lateinit var tts: TextToSpeech
+        private var canGiveHalfwayCue = false
+        private var halfwayViaTime = false
+        private var halfwayValue = 0.0
+        private var alreadyHalfway = false
+        private var useMetric: Boolean = false
+        private var isTreadmill: Boolean = false
+
+        fun reset() {
+            timeRunInMillis = MutableLiveData<Long>()
+            totalDistance = MutableLiveData<Double>()
+            totalElevationChange = MutableLiveData<Double>()
+            timeElapsedInSegment = 0L
+            totalSegmentDistance = 0.0
+            newSegment = MutableLiveData<RunSegment?>()
+            timeStarted = 0L
+            timeRun = 0L
+            runLocations = ArrayList()
+            timeRunInSeconds = MutableLiveData<Long>()
+            isTracking = MutableLiveData<Boolean>()
+            pathPoints = MutableLiveData<Polylines>()
+            runSegments = ArrayList()
             timeRun = 0L
             timeRunInSeconds.value = 0
             timeStarted = 0L
@@ -107,18 +117,23 @@ class TrackingService : LifecycleService() {
             timeElapsedInSegment = 0L
             totalSegmentDistance = 0.0
             totalDistance.value = 0.0
+            currentSegmentIndex = -1
+            runLocations.clear()
+            runSegments.clear()
+            isFirstRun = true
+            serviceKilled = false
+        }
+
+        fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech, isTreadmill: Boolean, preferences: SharedPreferences) {
             this.isTreadmill = isTreadmill
             tts = textToSpeech
-            this.preferences = preferences
             if (!segments.isNullOrEmpty()) {
-                segments.let {
-                    runSegments = segments
-                }
+                runSegments = segments
             } else {
                 runSegments.add(RunSegment(RunSegmentType.NONE, RunSegmentSpeed.NONE, Float.MAX_VALUE));
             }
-            this.useMetric = this.preferences.getBoolean("metric", false)
-            val enableHalfwayCue = this.preferences.getBoolean("halfway_cue", false)
+            this.useMetric = preferences.getBoolean(DashApp.getString(R.string.metric_preference), false)
+            val enableHalfwayCue = preferences.getBoolean(DashApp.getString(R.string.halfway_cue_preference), false)
             if (enableHalfwayCue) {
                 if (runSegments.all { x -> x.type === RunSegmentType.TIME }) {
                     canGiveHalfwayCue = true
@@ -150,6 +165,10 @@ class TrackingService : LifecycleService() {
             updateLocationTracking(it)
             updateNotificationTrackingState(it)
         })
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun killService() {
@@ -338,15 +357,15 @@ class TrackingService : LifecycleService() {
             if (halfwayViaTime == valueIsTime) {
                 var modifiedCompare = compareValue
                 if (!halfwayViaTime) {
-                    if (useMetric) {
-                        modifiedCompare = compareValue / 1000.0
+                    modifiedCompare = if (useMetric) {
+                        compareValue / 1000.0
                     } else {
-                        modifiedCompare = compareValue / 1609.344
+                        compareValue / 1609.344
                     }
                 }
                 if (halfwayValue <= modifiedCompare) {
                     alreadyHalfway = true
-                    tts?.speak("Halfway There!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                    tts.speak("Halfway There!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 }
             }
         }
@@ -427,7 +446,7 @@ class TrackingService : LifecycleService() {
                 timeElapsedInSegment = 0L
                 totalSegmentDistance = 0.0
             } else { // end of run
-                tts?.speak("You made it! Great job.", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                tts.speak("You made it! Great job.", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 newSegment.postValue(null)
             }
         }
@@ -436,14 +455,14 @@ class TrackingService : LifecycleService() {
     private fun speakSegment(segment: RunSegment?) {
         segment?.let {
             when (it.type) {
-                RunSegmentType.ALERT -> tts?.speak(segment.text, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                RunSegmentType.ALERT -> tts.speak(segment.text, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                 else -> {
                     when (it.speed) {
-                        RunSegmentSpeed.RUN -> tts?.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                        RunSegmentSpeed.WALK -> tts?.speak("Brisk Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                        RunSegmentSpeed.WARM_UP -> tts?.speak("Warm Up!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                        RunSegmentSpeed.COOL_DOWN -> tts?.speak("Cool Down!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
-                        RunSegmentSpeed.TEMPO_RUN -> tts?.speak("Tempo Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.RUN -> tts.speak("Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.WALK -> tts.speak("Brisk Walk!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.WARM_UP -> tts.speak("Warm Up!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.COOL_DOWN -> tts.speak("Cool Down!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                        RunSegmentSpeed.TEMPO_RUN -> tts.speak("Tempo Run!", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
                         RunSegmentSpeed.NONE -> {}
                     }
                 }

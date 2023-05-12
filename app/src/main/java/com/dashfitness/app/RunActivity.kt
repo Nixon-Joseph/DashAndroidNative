@@ -38,7 +38,7 @@ import kotlin.collections.ArrayList
 
 @OptIn(DelicateCoroutinesApi::class)
 @AndroidEntryPoint
-class RunActivity : AppCompatActivity() {
+class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     @Inject
     lateinit var dataSource: RunDatabaseDao
     private lateinit var binding: ActivityRunBinding
@@ -76,12 +76,14 @@ class RunActivity : AppCompatActivity() {
         binding.viewPager.adapter = adapter
         binding.tabs.setupWithViewPager(binding.viewPager)
 
-        tts = TextToSpeech(this) { }
+        tts = TextToSpeech(this, this)
 
         segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
         isTreadmill = intent.getBooleanExtra("isTreadmill", false)
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        TrackingService.reset()
 
         viewModel.setupRun(preferences)
 
@@ -89,6 +91,8 @@ class RunActivity : AppCompatActivity() {
 
         addViewModelEvents()
     }
+
+    override fun onInit(status: Int) { }
 
     private fun addViewModelEvents() {
         viewModel.endRun += {

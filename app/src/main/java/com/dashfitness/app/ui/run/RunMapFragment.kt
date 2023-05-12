@@ -126,11 +126,20 @@ class RunMapFragment(runViewModel: RunViewModel) : Fragment() {
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    @SuppressLint("MissingPermission")
     override fun onStart() {
         super.onStart()
         val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
 
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         val locationManager = context?.getSystemService<LocationManager>()
         locationManager?.getCurrentLocation(
             if (Build.VERSION.SDK_INT >= S) { LocationManager.FUSED_PROVIDER } else { LocationManager.GPS_PROVIDER },

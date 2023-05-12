@@ -3,12 +3,12 @@
     <PreferenceCategory app:title="@string/general_header">
 
         <SwitchPreferenceCompat
-            app:key="metric"
+            app:key="@string/metric_preference"
             app:title="Use Metric Units"
             app:summary="If true, you'll see kilos, meters, kilometers instead of lbs, feet, and miles"/>
 
         <SwitchPreferenceCompat
-            app:key="halfway_cue"
+            app:key="@string/halfway_cue_preference"
             app:title="Enable Halfway Cue"
             android:defaultValue="true"
             app:summary="When true, the app will notify you when you've reached halfway in your run. Note it cannot always determine what 'halfway' is depending on the segments you provide for the run"/>
@@ -18,41 +18,46 @@
     <PreferenceCategory app:title="@string/calorie_header">
 
         <SwitchPreferenceCompat
-            app:key="estimate_calories"
+            app:key="@string/estimate_calories_preference"
             app:title="Estimate Calories"
             app:summary="Whether or not to provide a calorie burn estimate - based on height, weight, and age."
             />
 
         <EditTextPreference
-            app:key="height_feet"
+            app:key="@string/height_feet_preference"
             android:inputType="number"
             app:title="Height Feet"/>
 
         <EditTextPreference
-            app:key="height_inches"
+            app:key="@string/height_inches_preference"
             android:inputType="number"
             app:title="Height Inches"/>
 
         <EditTextPreference
-            app:key="height_cm"
+            app:key="@string/height_cm_preference"
             android:inputType="number"
             app:title="Height Centimeters"/>
 
         <EditTextPreference
-            app:key="weight_lbs"
+            app:key="@string/weight_lbs_preference"
             android:inputType="numberDecimal"
             app:title="Weight In LBS"/>
 
         <EditTextPreference
-            app:key="weight_kilo"
+            app:key="@string/weight_kilo_preference"
             android:inputType="numberDecimal"
             app:title="Weight In Kilos"/>
 
         <EditTextPreference
-            app:key="age"
+            app:key="@string/age_preference"
             android:inputType="number"
             app:title="Age"/>
 
     </PreferenceCategory>
+
+    <SwitchPreferenceCompat
+        app:key="@string/ask_background_loc_preference"
+        android:defaultValue="true"
+        app:isPreferenceVisible="false"/>
 
 </PreferenceScreen>

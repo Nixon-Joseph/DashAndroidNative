@@ -54,4 +54,15 @@
     <string name="alert_icon">Alert Icon</string>
     <string name="segments">Segments</string>
     <string name="more_information">More Information</string>
+
+    <string name="estimate_calories_preference">estimate_calories</string>
+    <string name="metric_preference">metric</string>
+    <string name="halfway_cue_preference">halfway_cue</string>
+    <string name="height_feet_preference">height_feet</string>
+    <string name="height_inches_preference">height_inches</string>
+    <string name="height_cm_preference">height_cm</string>
+    <string name="weight_lbs_preference">weight_lbs</string>
+    <string name="weight_kilo_preference">weight_kilo</string>
+    <string name="age_preference">age</string>
+    <string name="ask_background_loc_preference">ask_background_loc</string>
 </resources>

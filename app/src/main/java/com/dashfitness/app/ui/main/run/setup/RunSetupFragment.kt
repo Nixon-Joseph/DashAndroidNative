@@ -1,24 +1,32 @@
 package com.dashfitness.app.ui.main.run.setup
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
 import com.dashfitness.app.ui.main.home.HomeFragmentDirections
 import com.dashfitness.app.ui.main.run.models.RunSegment
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class RunSetupFragment : Fragment() {
@@ -28,6 +36,7 @@ class RunSetupFragment : Fragment() {
     private var darkColor: Int = 0
     private lateinit var runSetupCustomFragment: RunSetupCustomFragment
     private lateinit var runSetupTrainingFragment: RunSetupTrainingFragment
+    private var pendingRunSegments: ArrayList<RunSegment>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,14 +90,96 @@ class RunSetupFragment : Fragment() {
             dialog.show()
         }
         viewModel.launchRunActivityEvent += {
-            val intent = Intent(activity, RunActivity::class.java)
-            intent.putExtra(
-                "segments",
-                it as java.io.Serializable)
-            intent.putExtra(
-                "isTreadmill",
-                viewModel.isTreadmill.value)
-            resultLauncher.launch(intent)
+            var canContinue = true
+            if (!viewModel.isTreadmill.value!!) {
+                pendingRunSegments = it
+                canContinue = requestAndConfirmPermissions()
+            }
+            if (canContinue) {
+                val intent = Intent(activity, RunActivity::class.java)
+                intent.putExtra(
+                    "segments",
+                    it as java.io.Serializable)
+                intent.putExtra(
+                    "isTreadmill",
+                    viewModel.isTreadmill.value)
+                resultLauncher.launch(intent)
+            }
+        }
+    }
+
+    val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { granted ->
+        var somethingGranted = false
+        granted[Manifest.permission.ACCESS_FINE_LOCATION]?.let { if (it) { somethingGranted = true } }
+        granted[Manifest.permission.ACCESS_COARSE_LOCATION]?.let { if (it) { somethingGranted = true } }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            granted[Manifest.permission.ACCESS_BACKGROUND_LOCATION]?.let { if (it) { somethingGranted = true } }
+        }
+        if (somethingGranted) {
+            viewModel.launchRunActivity(pendingRunSegments ?: ArrayList())
+        }
+    }
+
+    private fun requestAndConfirmPermissions(): Boolean {
+        val perms = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+        return if (ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            if (
+                shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                AppSettingsDialog
+                    .Builder(this)
+                    .setRationale("GPS location permissions have not been granted for this application.\n\nPlease go to settings and enable GPS location permissions to use the tracking features of this app.\n\nIf you only want the segment cues, you can select 'Treadmill' mode, which does not require GPS to function.")
+                    .setPositiveButton("Settings")
+                    .build()
+                    .show()
+                false
+            } else {
+                requestPermissionLauncher.launch(perms)
+                false
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED)
+        {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val askPrefString = getString(R.string.ask_background_loc_preference)
+            if (prefs.getBoolean(askPrefString, true)) {
+                val builder = requireActivity().let { AlertDialog.Builder(it) }
+                builder
+                    .setTitle("Additional location permission")
+                    .setMessage("Location tracking can be inconsistent if only set to \"Allow only when using the app\".\n\nTo make sure your tracking stays consistent on your run, please set the permission to \"Allow all the time\".\n\nThis application will not get your location without your permission, and will never request your location unless you're currently in a tracked run.")
+                    .setPositiveButton("OK") { _dialog, _ ->
+                        requestPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+                        _dialog.dismiss()
+                    }
+                    .setNegativeButton("No") { _dialog, _ ->
+                        _dialog.dismiss()
+                        val editor = prefs.edit()
+                        editor.putBoolean(getString(R.string.ask_background_loc_preference), false)
+                        editor.apply()
+                    }
+                builder.create().show()
+                false
+            } else {
+                true;
+            }
+        } else {
+            true
         }
     }
 
@@ -114,6 +205,15 @@ class RunSetupFragment : Fragment() {
         }
 
         binding.viewModel = viewModel
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     class ViewPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePagerAdapter(supportFragmentManager) {

@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
+import com.dashfitness.app.DashApp
+import com.dashfitness.app.R
 import com.dashfitness.app.util.*
 
 class RunViewModel : ViewModel() {
@@ -164,25 +166,25 @@ class RunViewModel : ViewModel() {
     }
 
     fun setupRun(preferences: SharedPreferences) {
-        isMetric = preferences.getBoolean("metric", false)
-        calculateCalories = preferences.getBoolean("estimate_calories", false)
+        isMetric = preferences.getBoolean(DashApp.getString(R.string.metric_preference), false)
+        calculateCalories = preferences.getBoolean(DashApp.getString(R.string.estimate_calories_preference), false)
         if (calculateCalories) {
-            preferences.getString("age", "0")?.let {
+            preferences.getString(DashApp.getString(R.string.age_preference), "0")?.let {
                 age = it.toInt()
             }
             if (isMetric) {
-                preferences.getString("weight_kilo", "0.0")?.let {
+                preferences.getString(DashApp.getString(R.string.weight_kilo_preference), "0.0")?.let {
                     weight = it.toDouble()
                 }
-                preferences.getString("height_cm", "0.0")?.let {
+                preferences.getString(DashApp.getString(R.string.height_cm_preference), "0.0")?.let {
                     height = it.toDouble()
                 }
             } else {
-                preferences.getString("weight_lbs", "0.0")?.let {
+                preferences.getString(DashApp.getString(R.string.weight_lbs_preference), "0.0")?.let {
                     weight = it.toDouble()
                 }
-                preferences.getString("height_feet", "0.0")?.let {ft ->
-                    preferences.getString("height_inches", "0.0")?.let {inch ->
+                preferences.getString(DashApp.getString(R.string.height_feet_preference), "0.0")?.let {ft ->
+                    preferences.getString(DashApp.getString(R.string.height_inches_preference), "0.0")?.let {inch ->
                         height = ft.toDouble() * 12.0 + inch.toDouble()
                     }
                 }
