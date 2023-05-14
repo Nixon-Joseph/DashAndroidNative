@@ -47,7 +47,7 @@ class TrainingRunAdapter(private val trainingRunListener: TrainingRunListener) :
 
 class TrainingRunDiffCallback : DiffUtil.ItemCallback<ITrainingRun>() {
     override fun areContentsTheSame(oldItem: ITrainingRun, newItem: ITrainingRun): Boolean {
-        return oldItem.Code == newItem.Code
+        return oldItem.Code == newItem.Code && oldItem.FinishedRun == newItem.FinishedRun
     }
 
     override fun areItemsTheSame(oldItem: ITrainingRun, newItem: ITrainingRun): Boolean {

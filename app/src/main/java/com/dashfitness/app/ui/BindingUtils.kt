@@ -159,6 +159,24 @@ fun View.setIsVisible(list: MutableList<RunSegment>?) {
     isVisible = list?.isEmpty() ?: true
 }
 
+@SuppressLint("SimpleDateFormat")
+@BindingAdapter("trainingRunCompletedDate")
+fun MaterialTextView.setTrainingRunCompletedDateText(run: ITrainingRun?) {
+    run?.FinishedRun?.let {
+        val formatter = SimpleDateFormat("MMMM d, yyyy")
+        val startDate = formatter.format(Date(it.startTimeMilli))
+        text = DashApp.getString(R.string.trainingRunCompletedDate, startDate)
+    }
+}
+
+@BindingAdapter("showTrainingRunCompletedDate")
+fun MaterialTextView.setShowTrainingRunCompletedDate(run: ITrainingRun?) {
+    visibility = View.INVISIBLE
+    run?.FinishedRun?.let {
+        visibility = View.VISIBLE
+    }
+}
+
 private fun getDate(millis: Long) : String {
     val formatter = SimpleDateFormat.getDateTimeInstance()
     val calendar = Calendar.getInstance()

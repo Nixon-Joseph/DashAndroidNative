@@ -3,7 +3,7 @@ package com.dashfitness.app.ui.main.run.setup
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dashfitness.app.services.TrackingService.Companion.runSegments
+import com.dashfitness.app.ui.main.run.models.RunActivityModel
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.ui.main.run.models.RunSegmentType
@@ -36,11 +36,11 @@ class RunSetupViewModel : ViewModel() {
         _triggerCustomRunActivity.value = false
     }
 
-    private val _launchRunActivity= EventHandler<ArrayList<RunSegment>>()
+    private val _launchRunActivity= EventHandler<RunActivityModel>()
     val launchRunActivityEvent = Event(_launchRunActivity)
 
-    fun launchRunActivity(runSegments: ArrayList<RunSegment>) {
-        _launchRunActivity.invoke(runSegments)
+    fun launchRunActivity(runSegments: ArrayList<RunSegment>, planCode: String = "") {
+        _launchRunActivity.invoke(RunActivityModel(runSegments, planCode))
     }
 
     private val onAddSegment = EventHandler<Boolean>()
@@ -78,8 +78,8 @@ class RunSetupViewModel : ViewModel() {
     fun onTreadmillToggleClick() {
         isTreadmill.value?.let {
             if (!it) {
-                val segs = segments.value
-                if (!segs.isNullOrEmpty() && segs.any{ s -> s.type === RunSegmentType.DISTANCE}) {
+                val segmentList = segments.value
+                if (!segmentList.isNullOrEmpty() && segmentList.any{ s -> s.type === RunSegmentType.DISTANCE}) {
                     onShowTreadmillDistanceSegmentsAlert.invoke(true)
                 } else {
                     isTreadmill.postValue(true)

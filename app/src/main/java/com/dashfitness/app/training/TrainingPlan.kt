@@ -7,4 +7,8 @@ abstract class TrainingPlan(
     var Name: String,
     var Description: String,
     var Runs: ArrayList<ITrainingRun>
-) : Serializable
+) : Serializable {
+    fun buildPlanRunCode(runCode: String): String {
+        return "${this.Code}|${runCode}";
+    }
+}

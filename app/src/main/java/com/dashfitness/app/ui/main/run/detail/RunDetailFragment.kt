@@ -10,7 +10,6 @@ import androidx.navigation.fragment.navArgs
 import com.dashfitness.app.R
 import com.dashfitness.app.database.RunDatabaseDao
 import com.dashfitness.app.databinding.FragmentRunDetailBinding
-import com.dashfitness.app.databinding.FragmentRunStatsBinding
 import com.dashfitness.app.util.RunDetailViewModelFactory
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData

@@ -21,6 +21,7 @@ import com.dashfitness.app.services.LatLngAltTime
 import com.dashfitness.app.services.Polyline
 import com.dashfitness.app.services.Polylines
 import com.dashfitness.app.services.TrackingService
+import com.dashfitness.app.ui.main.run.models.RunActivityModel
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.run.RunMapFragment
 import com.dashfitness.app.ui.run.RunStatsFragment
@@ -47,6 +48,7 @@ class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var runStatsFragment: RunStatsFragment
     private lateinit var tts: TextToSpeech
     private lateinit var segments: ArrayList<RunSegment>
+    private lateinit var runActivityModel: RunActivityModel
     private var isTreadmill: Boolean = false
     private val trackedRunSegments = ArrayList<TrackedRunSegment>()
     private var bundle: Bundle? = null
@@ -78,7 +80,8 @@ class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
-        segments = intent.getSerializableExtra("segments") as ArrayList<RunSegment>
+        runActivityModel = intent.getSerializableExtra("segments") as RunActivityModel
+        segments = runActivityModel.segments
         isTreadmill = intent.getBooleanExtra("isTreadmill", false)
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -210,7 +213,9 @@ class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 totalDistance = totalDistance,
                 averagePace = calculatePace(timeRun, totalDistance),
                 calories = caloriesBurnt,
-                title = "Run"
+                title = "Run",
+                planRunCode = runActivityModel.planRunCode,
+                planRunFinished = TrackingService.allSegmentsFinished
             )
         )
         trackedRunSegments.forEach { trackedRunSegment ->

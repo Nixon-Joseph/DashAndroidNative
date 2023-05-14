@@ -18,14 +18,15 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
+import com.dashfitness.app.MainActivity
 import com.dashfitness.app.R
 import com.dashfitness.app.RunActivity
 import com.dashfitness.app.databinding.FragmentRunSetupBinding
 import com.dashfitness.app.ui.main.home.HomeFragmentDirections
+import com.dashfitness.app.ui.main.run.models.RunActivityModel
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -36,7 +37,7 @@ class RunSetupFragment : Fragment() {
     private var darkColor: Int = 0
     private lateinit var runSetupCustomFragment: RunSetupCustomFragment
     private lateinit var runSetupTrainingFragment: RunSetupTrainingFragment
-    private var pendingRunSegments: ArrayList<RunSegment>? = null
+    private var pendingRun: RunActivityModel? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,7 +51,7 @@ class RunSetupFragment : Fragment() {
         setupListeners()
 
         runSetupCustomFragment = RunSetupCustomFragment(viewModel)
-        runSetupTrainingFragment = RunSetupTrainingFragment(viewModel)
+        runSetupTrainingFragment = RunSetupTrainingFragment(viewModel, (requireActivity() as MainActivity).runDataDAO)
 
         val adapter = ViewPageAdapter(parentFragmentManager)
         adapter.addFragment(runSetupTrainingFragment, "Training")
@@ -92,7 +93,7 @@ class RunSetupFragment : Fragment() {
         viewModel.launchRunActivityEvent += {
             var canContinue = true
             if (!viewModel.isTreadmill.value!!) {
-                pendingRunSegments = it
+                pendingRun = it
                 canContinue = requestAndConfirmPermissions()
             }
             if (canContinue) {
@@ -108,7 +109,7 @@ class RunSetupFragment : Fragment() {
         }
     }
 
-    val requestPermissionLauncher = registerForActivityResult(
+    private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { granted ->
         var somethingGranted = false
@@ -118,7 +119,7 @@ class RunSetupFragment : Fragment() {
             granted[Manifest.permission.ACCESS_BACKGROUND_LOCATION]?.let { if (it) { somethingGranted = true } }
         }
         if (somethingGranted) {
-            viewModel.launchRunActivity(pendingRunSegments ?: ArrayList())
+            viewModel.launchRunActivity(pendingRun?.segments ?: ArrayList(), pendingRun?.planRunCode ?: "")
         }
     }
 

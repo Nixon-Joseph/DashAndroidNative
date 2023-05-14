@@ -42,7 +42,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/run_image"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Week x Day x" />
+            tools:text="Week 3 Day 1" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/runFinishedDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Completed 03/13/2023"
+            android:paddingStart="8dp"
+            android:paddingEnd="12dp"
+            app:trainingRunCompletedDate="@{run}"
+            app:showTrainingRunCompletedDate="@{run}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
 
         <FrameLayout
             android:layout_width="match_parent"

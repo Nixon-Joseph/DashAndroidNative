@@ -81,6 +81,7 @@ class TrackingService : LifecycleService() {
         var isTracking = MutableLiveData<Boolean>()
         var pathPoints = MutableLiveData<Polylines>()
         var runSegments = ArrayList<RunSegment>()
+        var allSegmentsFinished: Boolean = false
         private var isFirstRun = true
         private var serviceKilled = false
         private var currentSegmentIndex = -1
@@ -122,6 +123,7 @@ class TrackingService : LifecycleService() {
             runSegments.clear()
             isFirstRun = true
             serviceKilled = false
+            allSegmentsFinished = false
         }
 
         fun setupRun(segments: ArrayList<RunSegment>?, textToSpeech: TextToSpeech, isTreadmill: Boolean, preferences: SharedPreferences) {
@@ -447,6 +449,7 @@ class TrackingService : LifecycleService() {
                 totalSegmentDistance = 0.0
             } else { // end of run
                 tts.speak("You made it! Great job.", TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString())
+                allSegmentsFinished = true
                 newSegment.postValue(null)
             }
         }

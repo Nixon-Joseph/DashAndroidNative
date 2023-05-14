@@ -37,4 +37,7 @@ interface RunDatabaseDao {
 
     @Query("SELECT * FROM dash_run_location_data WHERE run_id = :runId ORDER BY polyline_index, `index`")
     fun getRunLocations(runId: Long): LiveData<List<RunLocationData>>
+
+    @Query("SELECT * FROM dash_run_data WHERE plan_run_code LIKE :planCode || '%' AND plan_run_finished = 1")
+    fun getCompletedRunDataForPlan(planCode: String): LiveData<List<RunData>>
 }

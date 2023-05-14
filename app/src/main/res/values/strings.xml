@@ -54,6 +54,7 @@
     <string name="alert_icon">Alert Icon</string>
     <string name="segments">Segments</string>
     <string name="more_information">More Information</string>
+    <string name="trainingRunCompletedDate">Completed %1$s</string>
 
     <string name="estimate_calories_preference">estimate_calories</string>
     <string name="metric_preference">metric</string>
