@@ -82,6 +82,7 @@ class TrackingService : LifecycleService() {
         var pathPoints = MutableLiveData<Polylines>()
         var runSegments = ArrayList<RunSegment>()
         var allSegmentsFinished: Boolean = false
+        private var segmentStartedTime = 0L
         private var isFirstRun = true
         private var serviceKilled = false
         private var currentSegmentIndex = -1
@@ -105,15 +106,14 @@ class TrackingService : LifecycleService() {
             totalSegmentDistance = 0.0
             newSegment = MutableLiveData<RunSegment?>()
             timeStarted = 0L
+            segmentStartedTime = 0L
             timeRun = 0L
             runLocations = ArrayList()
             timeRunInSeconds = MutableLiveData<Long>()
             isTracking = MutableLiveData<Boolean>()
             pathPoints = MutableLiveData<Polylines>()
             runSegments = ArrayList()
-            timeRun = 0L
             timeRunInSeconds.value = 0
-            timeStarted = 0L
             timeRunInMillis.value = 0L
             timeElapsedInSegment = 0L
             totalSegmentDistance = 0.0
@@ -176,6 +176,7 @@ class TrackingService : LifecycleService() {
     private fun killService() {
         serviceKilled = true
         isFirstRun = true
+        timeRun += lapTime
         pauseService()
         postInitialValues()
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -188,6 +189,7 @@ class TrackingService : LifecycleService() {
                 ACTION_START_OR_RESUME_SERVICE -> {
                     if (isFirstRun) {
                         hasSegments = runSegments.isNotEmpty()
+                        timeStarted = System.currentTimeMillis()
                         startForegroundService()
                         currentSegmentIndex = -1
                         nextSegment()
@@ -215,11 +217,11 @@ class TrackingService : LifecycleService() {
     private fun startTimer() {
         addEmptyPolyline()
         isTracking.postValue(true)
-        timeStarted = System.currentTimeMillis()
+        segmentStartedTime = System.currentTimeMillis()
         isTimerEnabled = true
         CoroutineScope(Dispatchers.Main).launch {
             while(isTracking.value!!) {
-                lapTime = System.currentTimeMillis() - timeStarted
+                lapTime = System.currentTimeMillis() - segmentStartedTime
 
                 timeRunInMillis.postValue(timeRun + lapTime)
                 if (timeRunInMillis.value!! >= lastSecondTimestamp + 1000L) {
@@ -432,7 +434,7 @@ class TrackingService : LifecycleService() {
             timeElapsedInSegment = 0L
             totalSegmentDistance = 0.0
             timeRun += lapTime
-            timeStarted = System.currentTimeMillis()
+            segmentStartedTime = System.currentTimeMillis()
             lapTime = 0L
             currentSegment?.let {
                 if (it.type === RunSegmentType.ALERT) {

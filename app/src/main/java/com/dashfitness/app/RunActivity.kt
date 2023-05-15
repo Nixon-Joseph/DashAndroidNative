@@ -80,7 +80,7 @@ class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
-        runActivityModel = intent.getSerializableExtra("segments") as RunActivityModel
+        runActivityModel = intent.getSerializableExtra("runActivityInfo") as RunActivityModel
         segments = runActivityModel.segments
         isTreadmill = intent.getBooleanExtra("isTreadmill", false)
 
@@ -100,6 +100,7 @@ class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun addViewModelEvents() {
         viewModel.endRun += {
             sendCommandToService(ACTION_PAUSE_SERVICE)
+            sendCommandToService(ACTION_STOP_SERVICE)
             val builder = MaterialAlertDialogBuilder(this)
             builder.setTitle("Are you sure?")
             builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")

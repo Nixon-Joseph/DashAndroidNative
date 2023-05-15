@@ -99,7 +99,7 @@ class RunSetupFragment : Fragment() {
             if (canContinue) {
                 val intent = Intent(activity, RunActivity::class.java)
                 intent.putExtra(
-                    "segments",
+                    "runActivityInfo",
                     it as java.io.Serializable)
                 intent.putExtra(
                     "isTreadmill",

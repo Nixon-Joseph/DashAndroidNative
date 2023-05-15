@@ -89,7 +89,7 @@ fun MaterialTextView.setText(segment: RunSegment) {
 @BindingAdapter("trainingRunTitle")
 fun MaterialTextView.setText(run: ITrainingRun) {
     run.let {
-        text = it.Name
+        text = it.name
     }
 }
 
@@ -162,9 +162,9 @@ fun View.setIsVisible(list: MutableList<RunSegment>?) {
 @SuppressLint("SimpleDateFormat")
 @BindingAdapter("trainingRunCompletedDate")
 fun MaterialTextView.setTrainingRunCompletedDateText(run: ITrainingRun?) {
-    run?.FinishedRun?.let {
+    run?.finishedRunStartDate?.let {
         val formatter = SimpleDateFormat("MMMM d, yyyy")
-        val startDate = formatter.format(Date(it.startTimeMilli))
+        val startDate = formatter.format(Date(it))
         text = DashApp.getString(R.string.trainingRunCompletedDate, startDate)
     }
 }
@@ -172,7 +172,7 @@ fun MaterialTextView.setTrainingRunCompletedDateText(run: ITrainingRun?) {
 @BindingAdapter("showTrainingRunCompletedDate")
 fun MaterialTextView.setShowTrainingRunCompletedDate(run: ITrainingRun?) {
     visibility = View.INVISIBLE
-    run?.FinishedRun?.let {
+    run?.finishedRunStartDate?.let {
         visibility = View.VISIBLE
     }
 }

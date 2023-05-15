@@ -1,6 +1,5 @@
 package com.dashfitness.app.training
 
-import com.dashfitness.app.database.RunData
 import com.dashfitness.app.ui.main.run.models.RunSegment
 import com.dashfitness.app.ui.main.run.models.RunSegmentSpeed
 import com.dashfitness.app.util.milesToKilometers
@@ -52,11 +51,11 @@ class TenKActive: TrainingPlan(
 }
 
 class TenKActiveTrainingRun(
-    override var Code: String,
-    override var Name: String,
-    override var Summary: String,
-    override var FinishedRun: RunData? = null
-) : TrainingRun(Code, Name, Summary, FinishedRun) {
+    override var code: String,
+    override var name: String,
+    override var summary: String,
+    override var finishedRunStartDate: Long? = null
+) : TrainingRun(code, name, summary, finishedRunStartDate) {
     companion object {
         private fun _getRunSegments(code: String): ArrayList<RunSegment> {
             return when (code) {
@@ -397,5 +396,5 @@ class TenKActiveTrainingRun(
         }
     }
 
-    override fun getRunSegments(): ArrayList<RunSegment> { return _getRunSegments(Code) }
+    override fun getRunSegments(): ArrayList<RunSegment> { return _getRunSegments(code) }
 }

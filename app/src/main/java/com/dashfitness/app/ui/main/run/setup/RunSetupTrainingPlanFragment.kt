@@ -92,8 +92,8 @@ class RunSetupTrainingPlanFragment(private val parentViewModel: RunSetupViewMode
         runs.let {
             it.forEach {run ->
                 trainingRuns.forEach {tRun ->
-                    if (run.planRunCode == plan.buildPlanRunCode(tRun.Code)) {
-                        tRun.FinishedRun = run
+                    if (run.planRunCode == plan.buildPlanRunCode(tRun.code)) {
+                        tRun.finishedRunStartDate = run.startTimeMilli
                     }
                 }
             }
@@ -107,14 +107,14 @@ class RunSetupTrainingPlanFragment(private val parentViewModel: RunSetupViewMode
         val builder = requireActivity().let { AlertDialog.Builder(it) }
         val view = inflater.inflate(R.layout.dialog_select_training_run, null)
         builder
-            .setTitle("${plan.Name} - ${run.Name}")
+            .setTitle("${plan.Name} - ${run.name}")
             .setView(view)
             .setPositiveButton("Start Run") { _dialog, _ ->
-                parentViewModel?.launchRunActivity(run.getRunSegments(), plan.buildPlanRunCode(run.Code))
+                parentViewModel?.launchRunActivity(run.getRunSegments(), plan.buildPlanRunCode(run.code))
                 _dialog.dismiss()
             }
             .setNegativeButton("Cancel") { _dialog, _ -> _dialog.dismiss() }
-        view.findViewById<MaterialTextView>(R.id.selectTrainingSummaryTextView).text = run.Summary
+        view.findViewById<MaterialTextView>(R.id.selectTrainingSummaryTextView).text = run.summary
         val dialog = builder.create()
         dialog.show()
     }

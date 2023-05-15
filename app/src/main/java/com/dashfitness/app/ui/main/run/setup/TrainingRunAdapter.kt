@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.dashfitness.app.databinding.ListItemTrainingRunBinding
 import com.dashfitness.app.training.ITrainingRun
-import com.dashfitness.app.training.TrainingRun
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -47,7 +46,7 @@ class TrainingRunAdapter(private val trainingRunListener: TrainingRunListener) :
 
 class TrainingRunDiffCallback : DiffUtil.ItemCallback<ITrainingRun>() {
     override fun areContentsTheSame(oldItem: ITrainingRun, newItem: ITrainingRun): Boolean {
-        return oldItem.Code == newItem.Code && oldItem.FinishedRun == newItem.FinishedRun
+        return oldItem.code == newItem.code && oldItem.name == newItem.name && oldItem.finishedRunStartDate == newItem.finishedRunStartDate
     }
 
     override fun areItemsTheSame(oldItem: ITrainingRun, newItem: ITrainingRun): Boolean {

@@ -24,26 +24,4 @@ class RunData(
     val planRunCode: String,
     @ColumnInfo(name = "plan_run_finished", defaultValue = "0")
     val planRunFinished: Boolean
-) {
-    override operator fun equals(
-        other: Any?
-    ): Boolean {
-        other?.let {
-            return hashCode() == it.hashCode()
-        }
-        return false
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + startTimeMilli.hashCode()
-        result = 31 * result + endTimeMilli.hashCode()
-        result = 31 * result + totalDistance.hashCode()
-        result = 31 * result + averagePace.hashCode()
-        result = 31 * result + calories
-        result = 31 * result + title.hashCode()
-        result = 31 * result + planRunCode.hashCode()
-        result = 31 * result + planRunFinished.hashCode()
-        return result
-    }
-}
+) { }

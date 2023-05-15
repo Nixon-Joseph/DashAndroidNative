@@ -2,8 +2,8 @@ package com.dashfitness.app.ui.main.run.setup
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dashfitness.app.training.TrainingPlan
 import com.dashfitness.app.training.ITrainingRun
+import com.dashfitness.app.training.TrainingPlan
 import com.dashfitness.app.util.Event
 import com.dashfitness.app.util.EventHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
