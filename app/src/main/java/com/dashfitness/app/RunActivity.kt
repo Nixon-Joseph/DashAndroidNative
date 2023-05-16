@@ -100,13 +100,13 @@ class RunActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun addViewModelEvents() {
         viewModel.endRun += {
             sendCommandToService(ACTION_PAUSE_SERVICE)
-            sendCommandToService(ACTION_STOP_SERVICE)
             val builder = MaterialAlertDialogBuilder(this)
             builder.setTitle("Are you sure?")
             builder.setMessage("You are about to end your run.\n\nAre you sure you want to proceed?")
             builder.setPositiveButton("End Run") { _, _ ->
                 GlobalScope.launch {
                     stopRun()
+                    sendCommandToService(ACTION_STOP_SERVICE)
                 }
             }
             builder.setNegativeButton(android.R.string.cancel) { _, _ ->
